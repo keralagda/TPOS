@@ -14,10 +14,17 @@ node_modules/
 /build
 /dist
 
+# Vercel
+.vercel
+
 # Misc
 .DS_Store
 *.pem
 Thumbs.db
+
+# TypeScript build cache
+tsconfig.tsbuildinfo
+*.tsbuildinfo
 
 # Debug logs
 npm-debug.log*
@@ -28,3 +35,6 @@ yarn-error.log*
 # Local environment files
 .env*.local
 .env
+
+# Prisma generated (regenerated at build time on Vercel)
+# prisma/generated/ — keep commented unless you have custom output path
