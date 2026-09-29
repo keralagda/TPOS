@@ -1,0 +1,2031 @@
+// Travel Planet — Prisma Schema
+// Architecture: H8 -> Voyage8 -> Travel Planet Core
+// Domain Model Specification: 05_DOMAIN_MODEL_ERD.md
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+// ==========================================
+// 1. IDENTITY & ACCESS (RBAC)
+// ==========================================
+
+enum UserRoleType {
+  PLATFORM_SUPER_ADMIN
+  ADMIN
+  OPERATIONS_MANAGER
+  TRAVEL_AGENT
+  SALES_MANAGER
+  CRM_MANAGER
+  FINANCE_MANAGER
+  ACCOUNTANT
+  SUPPLIER_MANAGER
+  VENDOR_ADMIN
+  VENDOR_OPERATOR
+  CUSTOMER_SUPPORT
+  CONTENT_MANAGER
+  MARKETING_MANAGER
+  INTEGRATION_MANAGER
+  AI_OPERATOR
+  ANALYST
+  CUSTOMER
+  PARTNER
+  // Backwards compatibility aliases
+  SUPER_ADMIN
+  CRM_AGENT
+  PARTNER_AGENT
+  CONSUMER
+}
+
+enum DataScopeType {
+  GLOBAL
+  ORGANIZATION
+  WORKSPACE
+  TEAM
+  ASSIGNED
+  OWN_RECORDS
+  OWN_CUSTOMERS
+  OWN_VENDOR
+  READ_ONLY
+  NONE
+}
+
+model User {
+  id                   String                @id @default(cuid())
+  email                String                @unique
+  fullName             String
+  phone                String?
+  avatarUrl            String?
+  passwordHash         String?
+  role                 UserRoleType          @default(CUSTOMER)
+  organizationId       String?
+  organization         Organization?         @relation(fields: [organizationId], references: [id])
+  isActive             Boolean               @default(true)
+  createdAt            DateTime              @default(now())
+  updatedAt            DateTime              @updatedAt
+
+  userRoles            UserRole[]
+  workspaceMemberships WorkspaceMembership[]
+  sessions             Session[]
+  travelerProfiles     TravelerProfile[]
+  bookings             Booking[]
+  trips                Trip[]
+  leads                Lead[]
+  assignedCases        Case[]                @relation("AssignedAgent")
+  auditLogs            AuditLog[]
+  aiConversations      AIConversation[]
+  teamMemberships      TeamMember[]
+  authoredJourneys     TravelJourney[]
+  authoredDiaries      PlaceDiary[]
+
+  @@index([email])
+  @@index([role])
+  @@index([organizationId])
+}
+
+model Organization {
+  id          String   @id @default(cuid())
+  name        String
+  legalName   String?
+  taxId       String?
+  type        String   // "OPERATOR", "VENDOR", "AGENCY", "CORPORATE"
+  status      String   @default("ACTIVE")
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  users       User[]
+  vendors     Vendor[]
+  workspaces  Workspace[]
+  teams       Team[]
+  settlements Settlement[]
+  roles       Role[]
+  userRoles   UserRole[]
+}
+
+model Team {
+  id             String       @id @default(cuid())
+  name           String
+  organizationId String
+  organization   Organization @relation(fields: [organizationId], references: [id])
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+
+  members        TeamMember[]
+}
+
+model TeamMember {
+  id        String   @id @default(cuid())
+  teamId    String
+  userId    String
+  role      String   @default("MEMBER")
+  team      Team     @relation(fields: [teamId], references: [id])
+  user      User     @relation(fields: [userId], references: [id])
+  createdAt DateTime @default(now())
+
+  @@unique([teamId, userId])
+}
+
+model Workspace {
+  id             String                @id @default(cuid())
+  name           String
+  slug           String                @unique
+  organizationId String
+  organization   Organization          @relation(fields: [organizationId], references: [id])
+  createdAt      DateTime              @default(now())
+  updatedAt      DateTime              @updatedAt
+
+  roles          Role[]
+  userRoles      UserRole[]
+  members        WorkspaceMembership[]
+}
+
+model Role {
+  id             String          @id @default(cuid())
+  name           String
+  code           String          @unique
+  description    String?
+  scope          DataScopeType   @default(WORKSPACE)
+  isSystem       Boolean         @default(false)
+  organizationId String?
+  organization   Organization?   @relation(fields: [organizationId], references: [id])
+  workspaceId    String?
+  workspace      Workspace?      @relation(fields: [workspaceId], references: [id])
+  createdAt      DateTime        @default(now())
+  updatedAt      DateTime        @updatedAt
+
+  rolePermissions RolePermission[]
+  userRoles       UserRole[]
+
+  @@index([code])
+  @@index([organizationId])
+  @@index([workspaceId])
+}
+
+model Permission {
+  id              String           @id @default(cuid())
+  code            String           @unique // e.g. "bookings.view", "finance.manage"
+  domain          String           // "bookings", "finance", "users"
+  resource        String           // "booking", "ledger", "user"
+  action          String           // "view", "create", "cancel", "refund"
+  description     String?
+  createdAt       DateTime         @default(now())
+
+  rolePermissions RolePermission[]
+
+  @@index([code])
+  @@index([domain])
+}
+
+model RolePermission {
+  id             String         @id @default(cuid())
+  roleId         String
+  role           Role           @relation(fields: [roleId], references: [id], onDelete: Cascade)
+  permissionId   String
+  permission     Permission     @relation(fields: [permissionId], references: [id], onDelete: Cascade)
+  scopeOverride  DataScopeType?
+  createdAt      DateTime       @default(now())
+
+  @@unique([roleId, permissionId])
+  @@index([roleId])
+  @@index([permissionId])
+}
+
+model UserRole {
+  id             String        @id @default(cuid())
+  userId         String
+  user           User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  roleId         String
+  role           Role          @relation(fields: [roleId], references: [id], onDelete: Cascade)
+  workspaceId    String?
+  workspace      Workspace?    @relation(fields: [workspaceId], references: [id])
+  organizationId String?
+  organization   Organization? @relation(fields: [organizationId], references: [id])
+  scopeOverride  DataScopeType?
+  createdAt      DateTime      @default(now())
+
+  @@unique([userId, roleId, workspaceId])
+  @@index([userId])
+  @@index([roleId])
+  @@index([workspaceId])
+  @@index([organizationId])
+}
+
+model WorkspaceMembership {
+  id          String    @id @default(cuid())
+  workspaceId String
+  workspace   Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  userId      String
+  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  isDefault   Boolean   @default(false)
+  createdAt   DateTime  @default(now())
+
+  @@unique([workspaceId, userId])
+  @@index([workspaceId])
+  @@index([userId])
+}
+
+model Session {
+  id               String    @id @default(cuid())
+  userId           String
+  user             User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  token            String    @unique
+  expiresAt        DateTime
+  revokedAt        DateTime?
+  ipAddress        String?
+  userAgent        String?
+  isSupportSession Boolean   @default(false)
+  supportReason    String?
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
+
+  @@index([token])
+  @@index([userId])
+}
+
+// ==========================================
+// 2. TRAVELER PROFILE
+// ==========================================
+
+model TravelerProfile {
+  id             String   @id @default(cuid())
+  userId         String
+  user           User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  firstName      String
+  lastName       String
+  dateOfBirth    DateTime?
+  nationality    String?
+  passportNumber String?
+  passportExpiry DateTime?
+  phone          String?
+  isPrimary      Boolean  @default(false)
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  preferences    TravelerPreference[]
+  documents      TravelerDocument[]
+  passengers     Passenger[]
+
+  @@index([userId])
+}
+
+model TravelerPreference {
+  id                String          @id @default(cuid())
+  travelerProfileId String
+  travelerProfile   TravelerProfile @relation(fields: [travelerProfileId], references: [id], onDelete: Cascade)
+  category          String          // "SEAT", "MEAL", "HOTEL_ROOM", "AIRLINE", "CABIN_CLASS"
+  preferenceKey     String
+  preferenceValue   String
+  createdAt         DateTime        @default(now())
+  updatedAt         DateTime        @updatedAt
+}
+
+model TravelerDocument {
+  id                String          @id @default(cuid())
+  travelerProfileId String
+  travelerProfile   TravelerProfile @relation(fields: [travelerProfileId], references: [id], onDelete: Cascade)
+  documentType      String          // "PASSPORT", "VISA", "INSURANCE", "ID_CARD"
+  documentNumber    String
+  issuingCountry    String
+  validFrom         DateTime?
+  validUntil        DateTime?
+  fileUrl           String?
+  verificationState String          @default("UNVERIFIED") // "UNVERIFIED", "VERIFIED", "REJECTED"
+  createdAt         DateTime        @default(now())
+  updatedAt         DateTime        @updatedAt
+}
+
+model Passenger {
+  id                String           @id @default(cuid())
+  travelerProfileId String?
+  travelerProfile   TravelerProfile? @relation(fields: [travelerProfileId], references: [id])
+  firstName         String
+  lastName          String
+  type              String           // "ADULT", "CHILD", "INFANT"
+  passportNumber    String?
+  dob               DateTime?
+  gender            String?
+  createdAt         DateTime         @default(now())
+  updatedAt         DateTime         @updatedAt
+
+  bookingPassengers BookingPassenger[]
+}
+
+// ==========================================
+// 3. DIRECTORY & DESTINATIONS
+// ==========================================
+
+model Country {
+  id          String        @id @default(cuid())
+  code        String        @unique // ISO 2-letter
+  name        String
+  dialCode    String?
+  currency    String?
+  regions     Region[]
+  destinations Destination[]
+}
+
+model Region {
+  id          String        @id @default(cuid())
+  name        String
+  countryId   String
+  country     Country       @relation(fields: [countryId], references: [id])
+  cities      City[]
+}
+
+model City {
+  id          String        @id @default(cuid())
+  name        String
+  regionId    String?
+  region      Region?       @relation(fields: [regionId], references: [id])
+  destinations Destination[]
+}
+
+model Destination {
+  id           String        @id @default(cuid())
+  slug         String        @unique
+  name         String
+  headline     String?
+  description  String?
+  countryId    String
+  cityId       String?
+  country      Country       @relation(fields: [countryId], references: [id])
+  city         City?         @relation(fields: [cityId], references: [id])
+  heroImageUrl String?
+  galleryUrls  String[]
+  isFeatured   Boolean       @default(false)
+  isDomestic   Boolean       @default(false)
+  latitude     Float?
+  longitude    Float?
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+
+  places       Place[]
+  attractions  Attraction[]
+  products     Product[]
+  packages     Package[]
+  journeys     TravelJourney[]
+  insights     DestinationInsight[]
+
+  @@index([slug])
+}
+
+model Place {
+  id                String      @id @default(cuid())
+  slug              String      @unique
+  name              String
+  destinationId     String
+  destination       Destination @relation(fields: [destinationId], references: [id])
+  country           String?
+  state             String?
+  city              String?
+  description       String?
+  coverImage        String?
+  gallery           String[]
+  category          String
+  tags              String[]
+  highlights        String[]
+  bestTime          String?
+  howToReach        String?
+  travelTips        String?
+  accessibility     String?
+  familySuitability String?
+  latitude          Float?
+  longitude         Float?
+  seo               Json?
+  status            String      @default("DRAFT") // DRAFT, PUBLISHED, ARCHIVED
+  createdAt         DateTime    @default(now())
+  updatedAt         DateTime    @updatedAt
+
+  diaries           PlaceDiary[]
+  experiences       PlaceExperience[]
+  journeys          JourneyPlace[]
+
+  @@index([slug])
+  @@index([destinationId])
+  @@index([status])
+}
+
+model Attraction {
+  id            String      @id @default(cuid())
+  destinationId String
+  destination   Destination @relation(fields: [destinationId], references: [id])
+  name          String
+  description   String?
+  heroImageUrl  String?
+  rating        Float?      @default(0.0)
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+}
+
+model Business {
+  id            String      @id @default(cuid())
+  name          String
+  category      String      // "RESTAURANT", "HOTEL", "AGENCY", "RENTAL"
+  contactPhone  String?
+  contactEmail  String?
+  address       String?
+  city          String?
+  isVerified    Boolean     @default(false)
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+}
+
+// ==========================================
+// 4. COMMERCE (PRODUCTS, PACKAGES, OFFERS)
+// ==========================================
+
+enum ProductCategory {
+  FLIGHT
+  HOTEL
+  PACKAGE
+  EXPERIENCE
+  CAR
+  TRANSFER
+  CRUISE
+  VISA
+}
+
+model Product {
+  id            String          @id @default(cuid())
+  slug          String          @unique
+  title         String
+  category      ProductCategory
+  destinationId String?
+  destination   Destination?    @relation(fields: [destinationId], references: [id])
+  vendorId      String?
+  vendor        Vendor?         @relation(fields: [vendorId], references: [id])
+  description   String?
+  heroImageUrl  String?
+  galleryUrls   String[]
+  basePrice     Decimal         @db.Decimal(12, 2)
+  currency      String          @default("INR")
+  rating        Float           @default(0.0)
+  reviewCount   Int             @default(0)
+  status        String          @default("ACTIVE") // "ACTIVE", "DRAFT", "ARCHIVED"
+  createdAt     DateTime        @default(now())
+  updatedAt     DateTime        @updatedAt
+
+  variants      ProductVariant[]
+  offers        Offer[]
+  packageComponents PackageComponent[]
+  bookingItems  BookingItem[]
+  placeExperiences PlaceExperience[]
+
+  @@index([category])
+  @@index([slug])
+}
+
+model ProductVariant {
+  id          String   @id @default(cuid())
+  productId   String
+  product     Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  title       String
+  sku         String?  @unique
+  priceDelta  Decimal  @default(0.0) @db.Decimal(12, 2)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model Package {
+  id            String          @id @default(cuid())
+  slug          String          @unique
+  title         String
+  destinationId String
+  destination   Destination     @relation(fields: [destinationId], references: [id])
+  durationDays  Int
+  durationNights Int
+  heroImageUrl  String?
+  pricePerPerson Decimal        @db.Decimal(12, 2)
+  currency      String          @default("INR")
+  highlights    String[]
+  inclusions    String[]
+  exclusions    String[]
+  status        String          @default("ACTIVE")
+  createdAt     DateTime        @default(now())
+  updatedAt     DateTime        @updatedAt
+
+  components    PackageComponent[]
+
+  @@index([slug])
+}
+
+model PackageComponent {
+  id        String   @id @default(cuid())
+  packageId String
+  productId String
+  package   Package  @relation(fields: [packageId], references: [id], onDelete: Cascade)
+  product   Product  @relation(fields: [productId], references: [id])
+  dayNumber Int
+  notes     String?
+}
+
+model Offer {
+  id               String   @id @default(cuid())
+  productId        String
+  product          Product  @relation(fields: [productId], references: [id])
+  source           String   // "AKBAR", "BOOKING_COM", "INTERNAL", "AMADEUS"
+  sourceOfferId    String?
+  ratePlanCode     String?
+  originalPrice    Decimal  @db.Decimal(12, 2)
+  discountedPrice  Decimal  @db.Decimal(12, 2)
+  currency         String   @default("INR")
+  retrievedAt      DateTime @default(now())
+  lastVerifiedAt   DateTime @default(now())
+  freshnessStatus  String   @default("FRESH") // "FRESH", "STALE", "EXPIRED"
+  validUntil       DateTime?
+  availabilityJson Json?
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  @@index([source, sourceOfferId])
+}
+
+model Coupon {
+  id          String    @id @default(cuid())
+  code        String    @unique
+  description String?
+  discountPct Decimal?  @db.Decimal(5, 2)
+  flatAmount  Decimal?  @db.Decimal(12, 2)
+  minSpend    Decimal?  @db.Decimal(12, 2)
+  validFrom   DateTime  @default(now())
+  validTo     DateTime
+  usageLimit  Int?
+  usageCount  Int       @default(0)
+  isActive    Boolean   @default(true)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+}
+
+// ==========================================
+// 5. SUPPLIERS & VENDORS
+// ==========================================
+
+model Vendor {
+  id             String        @id @default(cuid())
+  name           String
+  organizationId String?
+  organization   Organization? @relation(fields: [organizationId], references: [id])
+  contactPerson  String?
+  contactEmail   String?
+  contactPhone   String?
+  status         String        @default("ACTIVE") // "ACTIVE", "PENDING", "SUSPENDED"
+  commissionRate Decimal       @default(10.00) @db.Decimal(5, 2)
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @updatedAt
+
+  products       Product[]
+  contracts      VendorContract[]
+  settlements    SupplierSettlement[]
+  bookingItems   BookingItem[]
+}
+
+model VendorContract {
+  id             String    @id @default(cuid())
+  vendorId       String
+  vendor         Vendor    @relation(fields: [vendorId], references: [id])
+  contractNumber String    @unique
+  validFrom      DateTime
+  validTo        DateTime
+  termsText      String?
+  fileUrl        String?
+  status         String    @default("ACTIVE")
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+}
+
+model SupplierSettlement {
+  id             String   @id @default(cuid())
+  vendorId       String
+  vendor         Vendor   @relation(fields: [vendorId], references: [id])
+  periodStart    DateTime
+  periodEnd      DateTime
+  grossAmount    Decimal  @db.Decimal(12, 2)
+  commission     Decimal  @db.Decimal(12, 2)
+  netPayable     Decimal  @db.Decimal(12, 2)
+  status         String   @default("PENDING") // "PENDING", "APPROVED", "SETTLED"
+  settledAt      DateTime?
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+}
+
+// ==========================================
+// 6. BOOKINGS, QUOTES & ORDERS
+// ==========================================
+
+enum BookingStatus {
+  DRAFT
+  PENDING_PAYMENT
+  CONFIRMED
+  CANCELLED
+  REFUNDED
+  FAILED
+}
+
+model SearchSession {
+  id           String   @id @default(cuid())
+  userId       String?
+  category     String
+  criteriaJson Json
+  resultCount  Int      @default(0)
+  createdAt    DateTime @default(now())
+}
+
+model Quote {
+  id          String   @id @default(cuid())
+  quoteNumber String   @unique
+  customerId  String?
+  totalAmount Decimal  @db.Decimal(12, 2)
+  currency    String   @default("INR")
+  detailsJson Json
+  expiresAt   DateTime
+  status      String   @default("ISSUED") // "ISSUED", "ACCEPTED", "EXPIRED"
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model Booking {
+  id            String        @id @default(cuid())
+  bookingNumber String        @unique
+  userId        String
+  user          User          @relation(fields: [userId], references: [id])
+  tripId        String?
+  trip          Trip?         @relation(fields: [tripId], references: [id])
+  totalAmount   Decimal       @db.Decimal(12, 2)
+  taxAmount     Decimal       @default(0.0) @db.Decimal(12, 2)
+  netAmount     Decimal       @db.Decimal(12, 2)
+  currency      String        @default("INR")
+  status        BookingStatus @default(PENDING_PAYMENT)
+  bookingSource String        @default("B2C_WEB")
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+
+  items         BookingItem[]
+  passengers    BookingPassenger[]
+  payments      Payment[]
+  invoices      Invoice[]
+  cancellations Cancellation[]
+  refunds       Refund[]
+
+  @@index([bookingNumber])
+  @@index([status])
+  @@index([userId])
+}
+
+model BookingItem {
+  id             String   @id @default(cuid())
+  bookingId      String
+  productId      String
+  vendorId       String?
+  booking        Booking  @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+  product        Product  @relation(fields: [productId], references: [id])
+  vendor         Vendor?  @relation(fields: [vendorId], references: [id])
+  serviceDate    DateTime
+  endDate        DateTime?
+  quantity       Int      @default(1)
+  unitPrice      Decimal  @db.Decimal(12, 2)
+  totalPrice     Decimal  @db.Decimal(12, 2)
+  supplierRefId  String?
+  status         String   @default("CONFIRMED")
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+}
+
+model BookingPassenger {
+  id          String    @id @default(cuid())
+  bookingId   String
+  passengerId String
+  booking     Booking   @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+  passenger   Passenger @relation(fields: [passengerId], references: [id])
+  seatNumber  String?
+  ticketNumber String?
+}
+
+model Cancellation {
+  id          String   @id @default(cuid())
+  bookingId   String
+  booking     Booking  @relation(fields: [bookingId], references: [id])
+  reason      String?
+  requestedBy String
+  feeAmount   Decimal  @default(0.0) @db.Decimal(12, 2)
+  status      String   @default("REQUESTED") // "REQUESTED", "PROCESSED", "REJECTED"
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model Refund {
+  id            String   @id @default(cuid())
+  bookingId     String
+  booking       Booking  @relation(fields: [bookingId], references: [id])
+  amount        Decimal  @db.Decimal(12, 2)
+  currency      String   @default("INR")
+  gatewayRefId  String?
+  status        String   @default("PENDING") // "PENDING", "COMPLETED", "FAILED"
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+}
+
+// ==========================================
+// 7. TRIPS & ITINERARIES
+// ==========================================
+
+model Trip {
+  id          String   @id @default(cuid())
+  userId      String
+  user        User     @relation(fields: [userId], references: [id])
+  title       String
+  startDate   DateTime
+  endDate     DateTime
+  status      String   @default("UPCOMING") // "PLANNING", "UPCOMING", "ACTIVE", "COMPLETED", "CANCELLED"
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  bookings    Booking[]
+  journeys    Journey[]
+  itineraries Itinerary[]
+  tripAlerts  TripAlert[]
+}
+
+model Journey {
+  id          String       @id @default(cuid())
+  tripId      String
+  trip        Trip         @relation(fields: [tripId], references: [id], onDelete: Cascade)
+  title       String
+  origin      String
+  destination String
+  legs        JourneyLeg[]
+}
+
+model JourneyLeg {
+  id          String   @id @default(cuid())
+  journeyId   String
+  journey     Journey  @relation(fields: [journeyId], references: [id], onDelete: Cascade)
+  carrier     String?
+  legNumber   Int
+  departureAt DateTime
+  arrivalAt   DateTime
+  fromLocation String
+  toLocation   String
+}
+
+model Itinerary {
+  id          String          @id @default(cuid())
+  tripId      String
+  trip        Trip            @relation(fields: [tripId], references: [id], onDelete: Cascade)
+  version     Int             @default(1)
+  items       ItineraryItem[]
+  createdAt   DateTime        @default(now())
+  updatedAt   DateTime        @updatedAt
+}
+
+model ItineraryItem {
+  id          String    @id @default(cuid())
+  itineraryId String
+  itinerary   Itinerary @relation(fields: [itineraryId], references: [id], onDelete: Cascade)
+  dayNumber   Int
+  startTime   DateTime?
+  title       String
+  description String?
+  location    String?
+  category    String    // "FLIGHT", "HOTEL_CHECKIN", "TOUR", "MEAL", "LEISURE"
+  status      String    @default("PLANNED")
+}
+
+model TripAlert {
+  id        String   @id @default(cuid())
+  tripId    String
+  trip      Trip     @relation(fields: [tripId], references: [id], onDelete: Cascade)
+  title     String
+  message   String
+  severity  String   @default("INFO") // "INFO", "WARNING", "CRITICAL"
+  isRead    Boolean  @default(false)
+  createdAt DateTime @default(now())
+}
+
+// ==========================================
+// 8. CRM & CUSTOMER 360
+// ==========================================
+
+model Customer {
+  id          String   @id @default(cuid())
+  name        String
+  email       String   @unique
+  phone       String?
+  lifecycle   String   @default("LEAD") // "LEAD", "PROSPECT", "CUSTOMER", "VIP"
+  totalSpend  Decimal  @default(0.0) @db.Decimal(12, 2)
+  tier        String   @default("STANDARD")
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  cases       Case[]
+}
+
+model Lead {
+  id          String   @id @default(cuid())
+  source      String   // "WEB_FORM", "WHATSAPP", "PHONE", "REFERRAL"
+  contactName String
+  email       String?
+  phone       String?
+  destination String?
+  budget      Decimal? @db.Decimal(12, 2)
+  status      String   @default("NEW") // "NEW", "CONTACTED", "QUALIFIED", "CONVERTED", "LOST"
+  assignedTo  String?
+  assignedUser User?   @relation(fields: [assignedTo], references: [id])
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model Case {
+  id          String   @id @default(cuid())
+  caseNumber  String   @unique
+  customerId  String?
+  customer    Customer? @relation(fields: [customerId], references: [id])
+  assignedTo  String?
+  assignedUser User?   @relation("AssignedAgent", fields: [assignedTo], references: [id])
+  subject     String
+  priority    String   @default("MEDIUM") // "LOW", "MEDIUM", "HIGH", "URGENT"
+  status      String   @default("OPEN") // "OPEN", "IN_PROGRESS", "RESOLVED", "CLOSED"
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+// ==========================================
+// 9. FINANCE, INVOICES & LEDGER
+// ==========================================
+
+enum PaymentStatus {
+  INITIATED
+  PENDING
+  AUTHORIZED
+  CAPTURED
+  SETTLED
+  FAILED
+  CANCELLED
+  REFUNDED
+  PARTIALLY_REFUNDED
+}
+
+model Payment {
+  id            String         @id @default(cuid())
+  bookingId     String
+  booking       Booking        @relation(fields: [bookingId], references: [id])
+  gateway       String         // "RAZORPAY", "CASHFREE", "PAYU", "CCAVENUE"
+  gatewayOrderId String?
+  gatewayPaymentId String?
+  amount        Decimal        @db.Decimal(12, 2)
+  currency      String         @default("INR")
+  status        PaymentStatus  @default(INITIATED)
+  verifiedAt    DateTime?
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+
+  attempts      PaymentAttempt[]
+}
+
+model PaymentAttempt {
+  id          String   @id @default(cuid())
+  paymentId   String
+  payment     Payment  @relation(fields: [paymentId], references: [id], onDelete: Cascade)
+  attemptNumber Int
+  status      String
+  rawPayload  Json?
+  createdAt   DateTime @default(now())
+}
+
+model Invoice {
+  id            String   @id @default(cuid())
+  invoiceNumber String   @unique
+  bookingId     String
+  booking       Booking  @relation(fields: [bookingId], references: [id])
+  subtotal      Decimal  @db.Decimal(12, 2)
+  taxTotal      Decimal  @db.Decimal(12, 2)
+  total         Decimal  @db.Decimal(12, 2)
+  status        String   @default("ISSUED") // "ISSUED", "PAID", "VOID"
+  issuedAt      DateTime @default(now())
+  dueAt         DateTime
+  lines         InvoiceLine[]
+  ledgerEntries LedgerEntry[]
+}
+
+model InvoiceLine {
+  id          String   @id @default(cuid())
+  invoiceId   String
+  invoice     Invoice  @relation(fields: [invoiceId], references: [id], onDelete: Cascade)
+  description String
+  quantity    Int      @default(1)
+  unitPrice   Decimal  @db.Decimal(12, 2)
+  taxRate     Decimal  @db.Decimal(5, 2)
+  lineTotal   Decimal  @db.Decimal(12, 2)
+}
+
+model Settlement {
+  id             String       @id @default(cuid())
+  organizationId String
+  organization   Organization @relation(fields: [organizationId], references: [id])
+  amount         Decimal      @db.Decimal(12, 2)
+  status         String       @default("PENDING")
+  settledAt      DateTime?
+  createdAt      DateTime     @default(now())
+}
+
+model LedgerEntry {
+  id          String   @id @default(cuid())
+  invoiceId   String?
+  invoice     Invoice? @relation(fields: [invoiceId], references: [id])
+  accountCode String   // e.g., "1001-CASH", "2001-SUPPLIER_PAYABLE", "4001-REVENUE"
+  debit       Decimal  @default(0.0) @db.Decimal(12, 2)
+  credit      Decimal  @default(0.0) @db.Decimal(12, 2)
+  description String
+  createdAt   DateTime @default(now())
+}
+
+// ==========================================
+// 10. CONNECT HUB & INTEGRATIONS
+// ==========================================
+
+enum ConnectorStatus {
+  NOT_CONFIGURED
+  DEMO
+  ACTIVE
+  DEGRADED
+  DISABLED
+}
+
+model Connector {
+  id              String           @id @default(cuid())
+  code            String           @unique // "AKBAR", "BOOKING_COM", "RAZORPAY", etc.
+  name            String
+  category        String           // "INVENTORY", "PAYMENT", "COMMUNICATION", "ACCOUNTING"
+  status          ConnectorStatus  @default(NOT_CONFIGURED)
+  capabilities    String[]
+  credentialRefId String?
+  lastSyncAt      DateTime?
+  healthScore     Float            @default(100.0)
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @updatedAt
+
+  syncJobs        SyncJob[]
+  webhookEvents   WebhookEvent[]
+}
+
+model SyncJob {
+  id          String    @id @default(cuid())
+  connectorId String
+  connector   Connector @relation(fields: [connectorId], references: [id])
+  jobType     String    // "FULL_INVENTORY", "DELTA_PRICING", "AVAILABILITY"
+  status      String    @default("PENDING") // "PENDING", "RUNNING", "COMPLETED", "FAILED"
+  startedAt   DateTime?
+  finishedAt  DateTime?
+  itemsCount  Int       @default(0)
+  errorMessage String?
+}
+
+model WebhookEndpoint {
+  id          String   @id @default(cuid())
+  url         String
+  secretKey   String
+  events      String[]
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model WebhookEvent {
+  id          String     @id @default(cuid())
+  connectorId String?
+  connector   Connector? @relation(fields: [connectorId], references: [id])
+  eventType   String     // "payment.captured", "booking.confirmed", etc.
+  payload     Json
+  signature   String?
+  isProcessed Boolean    @default(false)
+  receivedAt  DateTime   @default(now())
+}
+
+// ==========================================
+// 11. VOYAGE8 AI ASSISTANT & GOVERNANCE
+// ==========================================
+
+model AIConversation {
+  id        String      @id @default(cuid())
+  userId    String
+  user      User        @relation(fields: [userId], references: [id])
+  title     String?
+  createdAt DateTime    @default(now())
+  updatedAt DateTime    @updatedAt
+
+  messages  AIMessage[]
+}
+
+model AIMessage {
+  id             String         @id @default(cuid())
+  conversationId String
+  conversation   AIConversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  role           String         // "user", "assistant", "system"
+  content        String
+  tokensUsed     Int?
+  createdAt      DateTime       @default(now())
+}
+
+model AIInsight {
+  id          String   @id @default(cuid())
+  category    String   // "REVENUE", "INVENTORY", "ANOMALY", "CUSTOMER"
+  headline    String
+  details     String
+  severity    String   @default("INFO") // "INFO", "WARNING", "CRITICAL"
+  actionable  Boolean  @default(false)
+  createdAt   DateTime @default(now())
+}
+
+model AIAction {
+  id          String    @id @default(cuid())
+  actionType  String    // "DRAFT_OFFER", "REFUND_ISSUE", "PRICE_ADJUST"
+  description String
+  status      String    @default("PENDING_CONFIRMATION") // "PENDING_CONFIRMATION", "CONFIRMED", "REJECTED", "EXECUTED"
+  payloadJson Json
+  confirmedBy String?
+  confirmedAt DateTime?
+  createdAt   DateTime  @default(now())
+}
+
+// ==========================================
+// 12. AUDIT TRAIL
+// ==========================================
+
+model AuditLog {
+  id             String   @id @default(cuid())
+  userId         String?
+  user           User?    @relation(fields: [userId], references: [id])
+  organizationId String?
+  workspaceId    String?
+  action         String   // "CREATE", "UPDATE", "DELETE", "AUTHORIZE", "DENIED", "ROLE_CHANGED", "PERMISSION_CHANGED", "SESSION_REVOKED"
+  permission     String?
+  entityType     String?  // Legacy compat
+  entityId       String?  // Legacy compat
+  resourceType   String?
+  resourceId     String?
+  result         String?  // "AUTHORIZED", "DENIED", "SUCCESS", "FAILED"
+  changesJson    Json?
+  ipAddress      String?
+  userAgent      String?
+  requestId      String?
+  metadata       Json?
+  createdAt      DateTime @default(now())
+
+  @@index([entityType, entityId])
+  @@index([userId])
+  @@index([organizationId])
+  @@index([workspaceId])
+  @@index([action])
+  @@index([createdAt])
+}
+
+// ==========================================
+// 13. VIBE — VISUAL INTELLIGENCE & BUILDER ENGINE
+// Architecture: DATA != EXPERIENCE != WORKFLOW; BUILDER != RUNTIME
+// ==========================================
+
+enum ExperienceType {
+  PAGE
+  LANDING_PAGE
+  DESTINATION
+  PLACE
+  JOURNEY
+  DIARY
+  GUIDE
+  DASHBOARD
+  WORKSPACE
+  PORTAL
+  FORM
+  BOOKING_FLOW
+  SEARCH
+  CHECKOUT
+  REPORT
+  CAMPAIGN
+  APPLICATION
+}
+
+enum ExperienceStatus {
+  DRAFT
+  IN_REVIEW
+  APPROVED
+  PUBLISHED
+  ARCHIVED
+}
+
+enum ExperienceVisibility {
+  PUBLIC
+  PRIVATE
+  WORKSPACE
+  ORGANIZATION
+}
+
+// --- Central Slug Registry (§15) ---
+
+enum SlugEntityType {
+  DESTINATION
+  COUNTRY
+  STATE
+  CITY
+  PLACE
+  ATTRACTION
+  HOTEL
+  EXPERIENCE
+  PACKAGE
+  JOURNEY
+  DIARY
+  TRAVEL_GUIDE
+  TRAVEL_STORY
+  LANDING_PAGE
+  BLOG
+  PAGE
+}
+
+model Slug {
+  id              String          @id @default(cuid())
+  slug            String
+  canonicalPath   String
+  entityType      SlugEntityType
+  entityId        String
+  parentSlug      String?
+  locale          String          @default("en")
+  status          String          @default("ACTIVE") // ACTIVE, REDIRECTED, ARCHIVED
+  isCanonical     Boolean         @default(true)
+  redirectTo      String?
+  metaTitle       String?
+  metaDescription String?
+  organizationId  String?
+  workspaceId     String?
+  createdAt       DateTime        @default(now())
+  updatedAt       DateTime        @updatedAt
+
+  @@unique([slug, locale, entityType])
+  @@index([slug])
+  @@index([canonicalPath])
+  @@index([entityType, entityId])
+  @@index([status])
+  @@index([organizationId])
+}
+
+model Redirect {
+  id         String   @id @default(cuid())
+  fromPath   String   @unique
+  toPath     String
+  statusCode Int      @default(301)
+  reason     String?
+  isActive   Boolean  @default(true)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@index([fromPath])
+}
+
+// --- Experience + immutable version history (§05, §43) ---
+
+model Experience {
+  id               String               @id @default(cuid())
+  name             String
+  slug             String               @unique
+  type             ExperienceType
+  status           ExperienceStatus     @default(DRAFT)
+  visibility       ExperienceVisibility @default(PRIVATE)
+  templateId       String?
+  template         ExperienceTemplate?  @relation(fields: [templateId], references: [id])
+  // Composition JSONB: { nodes: [ { id, componentId|sectionId, props, bindings, conditions, actions, children, responsive, style } ] }
+  draftComposition Json?
+  publishedVersion Int?
+  dataSources      Json?
+  permissions      Json?
+  theme            Json?
+  entityType       SlugEntityType?
+  entityId         String?
+  version          Int                  @default(1)
+  organizationId   String?
+  workspaceId      String?
+  createdBy        String?
+  updatedBy        String?
+  createdAt        DateTime             @default(now())
+  updatedAt        DateTime             @updatedAt
+
+  versions         ExperienceVersion[]
+
+  @@index([slug])
+  @@index([type])
+  @@index([status])
+  @@index([organizationId])
+  @@index([workspaceId])
+  @@index([entityType, entityId])
+}
+
+model ExperienceVersion {
+  id           String              @id @default(cuid())
+  experienceId String
+  experience   Experience          @relation(fields: [experienceId], references: [id], onDelete: Cascade)
+  version      Int
+  status       ExperienceStatus
+  // Immutable snapshot of composition at publish time
+  composition  Json
+  changeNote   String?
+  publishedBy  String?
+  publishedAt  DateTime?
+  createdBy    String?
+  createdAt    DateTime            @default(now())
+
+  @@unique([experienceId, version])
+  @@index([experienceId])
+  @@index([publishedAt])
+}
+
+// --- Registries: Component / Section / Template / Widget (§08-10, §26) ---
+
+model ComponentDefinition {
+  id             String   @id @default(cuid())
+  key            String   // e.g. "hero", "destinationCard"
+  name           String
+  category       String   // GENERIC | TRAVEL | DASHBOARD
+  version        Int      @default(1)
+  schema         Json     // structural schema
+  propsSchema    Json     // schema-driven configuration
+  dataBindings   Json?    // allowed binding paths
+  events         Json?
+  actions        Json?
+  responsiveRules Json?
+  styleTokens    Json?
+  permissions    Json?
+  status         String   @default("ACTIVE") // ACTIVE, DEPRECATED
+  createdBy      String?
+  updatedBy      String?
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  @@unique([key, version])
+  @@index([category])
+  @@index([status])
+}
+
+model SectionDefinition {
+  id          String   @id @default(cuid())
+  key         String   @unique // e.g. "destination.hero.v1"
+  name        String
+  family      String   // destination, journey, diary, dashboard...
+  version     Int      @default(1)
+  // Composition subtree referencing ComponentDefinition keys
+  composition Json
+  dataNeeds   Json?    // required bindings
+  variants    Json?
+  status      String   @default("ACTIVE")
+  createdBy   String?
+  updatedBy   String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([family])
+  @@index([status])
+}
+
+model ExperienceTemplate {
+  id          String              @id @default(cuid())
+  key         String              @unique // e.g. "tpl.destination"
+  name        String
+  type        ExperienceType
+  category    String?
+  parentId    String?
+  parent      ExperienceTemplate? @relation("TemplateInheritance", fields: [parentId], references: [id])
+  children    ExperienceTemplate[] @relation("TemplateInheritance")
+  baseComposition Json
+  inheritedDataSources Json?
+  version     Int                 @default(1)
+  status      String              @default("ACTIVE")
+  organizationId String?
+  createdBy   String?
+  updatedBy   String?
+  createdAt   DateTime            @default(now())
+  updatedAt   DateTime            @updatedAt
+
+  experiences Experience[]
+
+  @@index([type])
+  @@index([parentId])
+}
+
+model WidgetDefinition {
+  id              String   @id @default(cuid())
+  type            String   // KPI, CHART, TABLE, KANBAN, ...
+  title           String
+  dataSource      String
+  dataScope       String   @default("WORKSPACE")
+  permissions     Json?
+  refreshIntervalMs Int?
+  width           Int      @default(3)
+  height          Int?
+  roleBindings    Json?
+  config          Json?
+  status          String   @default("ACTIVE")
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  @@index([type])
+}
+
+// --- Design System (§30) ---
+
+model StyleToken {
+  id        String   @id @default(cuid())
+  group     String   // typography, colors, spacing, radius, shadows, borders, breakpoints
+  name      String
+  value     String
+  theme     String   @default("default")
+  updatedAt DateTime @updatedAt
+
+  @@unique([group, name, theme])
+  @@index([group])
+}
+
+// --- Media references (§53) ---
+
+model Media {
+  id        String   @id @default(cuid())
+  url       String
+  alt       String?
+  caption   String?
+  width     Int?
+  height    Int?
+  mimeType  String?
+  size      Int?
+  kind      String   @default("IMAGE") // IMAGE, VIDEO, DOCUMENT
+  metadata  Json?
+  folder    String?
+  createdBy String?
+  createdAt DateTime @default(now())
+
+  @@index([kind])
+  @@index([folder])
+}
+
+// --- Travel domain first-class entities ---
+
+model TravelJourney {
+  id             String           @id @default(cuid())
+  slug           String           @unique
+  title          String
+  subtitle       String?
+  description    String?
+  journeyType    String           @default("CURATED")
+  capability     String           @default("INSPIRATIONAL") // INSPIRATIONAL, PLANNABLE, QUOTABLE, BOOKABLE
+  status         String           @default("DRAFT")
+  visibility     String           @default("PRIVATE")
+  authorId       String?
+  author         User?            @relation(fields: [authorId], references: [id])
+  destinationId  String?
+  destination    Destination?     @relation(fields: [destinationId], references: [id])
+  origin         String?
+  durationDays   Int?
+  travellerProfile Json?
+  travelStyle    String?
+  budgetRange    Json?
+  season         String?
+  coverImage     String?
+  gallery        String[]
+  highlights     String[]
+  tags           String[]
+  seo            Json?
+  metadata       Json?
+  organizationId String?
+  createdAt      DateTime         @default(now())
+  updatedAt      DateTime         @updatedAt
+
+  days           JourneyDay[]
+  places         JourneyPlace[]
+  diaries        PlaceDiary[]
+
+  @@index([slug])
+  @@index([status])
+  @@index([destinationId])
+  @@index([organizationId])
+}
+
+model JourneyDay {
+  id            String   @id @default(cuid())
+  journeyId     String
+  journey       TravelJourney @relation(fields: [journeyId], references: [id], onDelete: Cascade)
+  dayNumber     Int
+  title         String
+  description   String?
+  startLocation String?
+  endLocation   String?
+  route         Json?
+  estimatedCost Decimal? @db.Decimal(12, 2)
+  travelTime    String?
+  notes         String?
+  media         Json?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  items         JourneyDayItem[]
+
+  @@unique([journeyId, dayNumber])
+  @@index([journeyId])
+}
+
+enum JourneyDayItemType {
+  PLACE
+  ATTRACTION
+  ACTIVITY
+  MEAL
+  ACCOMMODATION
+  TRANSPORT
+  EXPERIENCE
+}
+
+model JourneyDayItem {
+  id          String             @id @default(cuid())
+  dayId       String
+  day         JourneyDay         @relation(fields: [dayId], references: [id], onDelete: Cascade)
+  type        JourneyDayItemType
+  refEntityId String?
+  title       String
+  description String?
+  startTime   String?
+  cost        Decimal?           @db.Decimal(12, 2)
+  orderIndex  Int                @default(0)
+  metadata    Json?
+
+  @@index([dayId])
+  @@index([refEntityId])
+}
+
+model JourneyPlace {
+  id        String        @id @default(cuid())
+  journeyId String
+  journey   TravelJourney @relation(fields: [journeyId], references: [id], onDelete: Cascade)
+  placeId   String
+  place     Place         @relation(fields: [placeId], references: [id], onDelete: Cascade)
+  role      String        @default("STOP") // STAY, VISIT, TRANSIT
+
+  @@unique([journeyId, placeId])
+  @@index([journeyId])
+  @@index([placeId])
+}
+
+model PlaceExperience {
+  id        String  @id @default(cuid())
+  placeId   String
+  place     Place   @relation(fields: [placeId], references: [id], onDelete: Cascade)
+  productId String
+  product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  @@unique([placeId, productId])
+  @@index([placeId])
+}
+
+enum DiaryStatus {
+  DRAFT
+  REVIEW
+  APPROVED
+  PUBLISHED
+  ARCHIVED
+  FLAGGED
+}
+
+model PlaceDiary {
+  id                 String      @id @default(cuid())
+  slug               String      @unique
+  title              String
+  authorId           String?
+  author             User?       @relation(fields: [authorId], references: [id])
+  placeId            String?
+  place              Place?      @relation(fields: [placeId], references: [id])
+  journeyId          String?
+  journey            TravelJourney? @relation(fields: [journeyId], references: [id])
+  visitDate          DateTime?
+  duration           String?
+  travelCompanions   String?
+  travelStyle        String?
+  season             String?
+  coverImage         String?
+  gallery            String[]
+  video              String?
+  story              String?
+  whatISaw           String?
+  whatIDid           String?
+  whatIAte           String?
+  whereIStayed       String?
+  whatSurprisedMe    String?
+  whatIDoDifferently String?
+  practicalNotes     String?
+  bestTime           String?
+  gettingThere       String?
+  budget             Json?
+  crowdLevel         String?
+  difficulty         String?
+  accessibility      String?
+  status             DiaryStatus @default(DRAFT)
+  seo                Json?
+  organizationId     String?
+  createdAt          DateTime    @default(now())
+  updatedAt          DateTime    @updatedAt
+
+  media              DiaryMedia[]
+  observations       PlaceObservation[]
+
+  @@index([slug])
+  @@index([placeId])
+  @@index([journeyId])
+  @@index([status])
+  @@index([organizationId])
+}
+
+model DiaryMedia {
+  id         String   @id @default(cuid())
+  diaryId    String
+  diary      PlaceDiary @relation(fields: [diaryId], references: [id], onDelete: Cascade)
+  url        String
+  caption    String?
+  kind       String   @default("IMAGE")
+  orderIndex Int      @default(0)
+  mediaId    String?
+
+  @@index([diaryId])
+}
+
+// --- Diary -> Destination Intelligence (§22) with provenance ---
+
+model PlaceObservation {
+  id              String      @id @default(cuid())
+  placeId         String?
+  destinationId   String?
+  attribute       String      // weatherCondition, roadCondition, crowdLevel, season...
+  value           String
+  timeOfDay       String?
+  season          String?
+  sourceType      String      // DIARY, MANUAL, API
+  sourceId        String?
+  sourceDiaryId   String?
+  sourceDiary     PlaceDiary? @relation(fields: [sourceDiaryId], references: [id])
+  author          String?
+  visitDate       DateTime?
+  extractionMethod String     @default("MANUAL") // MANUAL, AI
+  confidence      Float       @default(0.5)
+  verified        Boolean     @default(false)
+  createdAt       DateTime    @default(now())
+
+  insight         DestinationInsight? @relation(fields: [insightId], references: [id])
+  insightId       String?
+
+  @@index([placeId])
+  @@index([destinationId])
+  @@index([attribute])
+  @@index([sourceType, sourceId])
+}
+
+model DestinationInsight {
+  id            String   @id @default(cuid())
+  destinationId String
+  destination   Destination @relation(fields: [destinationId], references: [id])
+  attribute     String
+  label         String   // human-readable, e.g. "Traveler diary reports: rain in afternoons"
+  value         String
+  evidenceCount Int      @default(0)
+  isUniversal   Boolean  @default(false) // NEVER auto-promote to absolute fact
+  confidence    Float    @default(0.5)
+  verified      Boolean  @default(false)
+  provenance    Json?
+  updatedAt     DateTime @updatedAt
+
+  observations  PlaceObservation[]
+
+  @@unique([destinationId, attribute])
+  @@index([destinationId])
+}
+
+// --- Page overrides for template inheritance (§32) ---
+
+model PageOverride {
+  id           String  @id @default(cuid())
+  experienceId String
+  sectionKey   String
+  overrides    Json
+  order        Int     @default(0)
+  isActive     Boolean @default(true)
+  updatedAt    DateTime @updatedAt
+
+  @@index([experienceId])
+}
+
+// ==========================================
+// 14. VOYAGE8 EXCLUSIVE H8 BUNDLE ENGINES (v2.0.0)
+// ==========================================
+
+// --- Social8 / Travel Social Graph (§16) ---
+
+enum CircleType {
+  DESTINATION
+  INTEREST
+  ACTIVITY
+  TRAVELER_STYLE
+  TIME_BASED
+  JOURNEY_SPECIFIC
+}
+
+enum CirclePrivacy {
+  PUBLIC
+  DISCOVERABLE
+  PRIVATE
+  HIDDEN
+}
+
+enum CircleMemberRole {
+  FOLLOWING
+  MEMBER
+  MODERATOR
+  ADMIN
+  OWNER
+}
+
+model Circle {
+  id             String        @id @default(cuid())
+  name           String
+  slug           String        @unique
+  description    String?
+  type           CircleType    @default(INTEREST)
+  privacy        CirclePrivacy @default(PUBLIC)
+  coverImage     String?
+  destinationId  String?
+  creatorId      String
+  rules          String?
+  memberCount    Int           @default(1)
+  postCount      Int           @default(0)
+  isActive       Boolean       @default(true)
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @updatedAt
+
+  members        CircleMember[]
+  discussions    CircleDiscussion[]
+  trips          CircleTrip[]
+
+  @@index([slug])
+  @@index([destinationId])
+  @@index([creatorId])
+  @@index([type])
+}
+
+model CircleMember {
+  id             String           @id @default(cuid())
+  circleId       String
+  circle         Circle           @relation(fields: [circleId], references: [id], onDelete: Cascade)
+  userId         String
+  role           CircleMemberRole @default(MEMBER)
+  joinedAt       DateTime         @default(now())
+  status         String           @default("ACTIVE") // ACTIVE, MUTED, BANNED
+
+  @@unique([circleId, userId])
+  @@index([circleId])
+  @@index([userId])
+}
+
+model CircleDiscussion {
+  id             String        @id @default(cuid())
+  circleId       String
+  circle         Circle        @relation(fields: [circleId], references: [id], onDelete: Cascade)
+  authorId       String
+  title          String
+  content        String
+  category       String        @default("DISCUSSION") // POST, QUESTION, POLL, TRIP_IDEA, RECOMMENDATION, HIDDEN_GEM
+  isPinned       Boolean       @default(false)
+  likeCount      Int           @default(0)
+  commentCount   Int           @default(0)
+  intentDetected Boolean       @default(false) // Triggered by Journey Conversion Gate
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @updatedAt
+
+  comments       DiscussionComment[]
+
+  @@index([circleId])
+  @@index([authorId])
+  @@index([category])
+}
+
+model DiscussionComment {
+  id             String           @id @default(cuid())
+  discussionId   String
+  discussion     CircleDiscussion @relation(fields: [discussionId], references: [id], onDelete: Cascade)
+  authorId       String
+  content        String
+  likeCount      Int              @default(0)
+  createdAt      DateTime         @default(now())
+  updatedAt      DateTime         @updatedAt
+
+  @@index([discussionId])
+  @@index([authorId])
+}
+
+model CircleTrip {
+  id             String        @id @default(cuid())
+  circleId       String
+  circle         Circle        @relation(fields: [circleId], references: [id], onDelete: Cascade)
+  title          String
+  destinationId  String?
+  startDate      DateTime?
+  endDate        DateTime?
+  targetSize     Int           @default(10)
+  confirmedCount Int           @default(1)
+  status         String        @default("PROPOSED") // PROPOSED, PLANNING, QUOTING, BOOKED, COMPLETED
+  journeyId      String?
+  quoteId        String?
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @updatedAt
+
+  @@index([circleId])
+  @@index([destinationId])
+}
+
+// --- GEM8 / Beyond-The-Icon Discovery (§17) ---
+
+enum GemClassification {
+  EMERGING
+  LESSER_KNOWN
+  LOCAL_FAVOURITE
+  ALTERNATIVE
+  OFFBEAT
+  SEASONAL
+  NICHE
+  UNDERRATED
+}
+
+enum GemVerificationStatus {
+  CANDIDATE
+  REVIEWED
+  PUBLISHED
+  ARCHIVED
+}
+
+model GemDiscovery {
+  id                   String                @id @default(cuid())
+  name                 String
+  slug                 String                @unique
+  description          String
+  destinationId        String
+  iconicPairingPlaceId String?             // ID of the famous landmark this is an alternative/companion to
+  classification       GemClassification     @default(OFFBEAT)
+  bestTimeToVisit      String?
+  accessibilityNotes   String?
+  safetyNotes          String?
+  confidenceScore      Float                 @default(0.85) // 0.0 to 1.0
+  verificationStatus   GemVerificationStatus @default(PUBLISHED)
+  tags                 String[]
+  images               String[]
+  createdAt            DateTime              @default(now())
+  updatedAt            DateTime              @updatedAt
+
+  provenanceEntries    GemProvenance[]
+
+  @@index([slug])
+  @@index([destinationId])
+  @@index([iconicPairingPlaceId])
+  @@index([classification])
+  @@index([verificationStatus])
+}
+
+model GemProvenance {
+  id             String       @id @default(cuid())
+  gemId          String
+  gem            GemDiscovery @relation(fields: [gemId], references: [id], onDelete: Cascade)
+  sourceType     String       // OFFICIAL_TOURISM, LOCAL_CONTRIBUTOR, VERIFIED_PARTNER, EDITORIAL_RESEARCH, TRAVELER_SUBMISSION, COMMUNITY_DISCUSSION, AI_DISCOVERY
+  sourceRef      String?
+  authorName     String?
+  evidenceNote   String
+  lastVerifiedAt DateTime     @default(now())
+  confidence     Float        @default(0.9)
+  createdAt      DateTime     @default(now())
+
+  @@index([gemId])
+  @@index([sourceType])
+}
+
+// --- VN8 / VO8 / Voice Navigation & Operations (§19) ---
+
+enum VoiceCommandType {
+  NAVIGATION
+  SEARCH
+  FILTER
+  OPEN
+  CREATE
+  UPDATE
+  ASSIGN
+  APPROVE
+  SEND
+  GENERATE
+  WORKFLOW
+  HELP
+  AI
+}
+
+enum VoiceRiskLevel {
+  LOW
+  MEDIUM
+  HIGH
+  CONSEQUENTIAL
+}
+
+model VoiceIntent {
+  id                   String           @id @default(cuid())
+  intentKey            String           @unique // e.g. "NAVIGATE_CRM_LEADS", "CREATE_QUOTE", "SEARCH_FLIGHTS"
+  commandType          VoiceCommandType @default(NAVIGATION)
+  phrases              String[]         // e.g. ["open leads", "show crm leads", "take me to leads"]
+  locales              String[]         @default(["en-IN"]) // "en-IN", "ml-IN", "hi-IN"
+  targetRoute          String?
+  governedFunction     String?          // Bound capability in Function Registry
+  requiredRole         String?          // e.g. "TRAVEL_AGENT" or null for public
+  riskLevel            VoiceRiskLevel   @default(LOW)
+  requiresConfirmation Boolean          @default(false)
+  isActive             Boolean          @default(true)
+  createdAt            DateTime         @default(now())
+  updatedAt            DateTime         @updatedAt
+
+  @@index([intentKey])
+  @@index([commandType])
+}
+
+model VoiceExecutionLog {
+  id                String   @id @default(cuid())
+  userId            String?
+  transcript        String
+  resolvedIntent    String?
+  locale            String   @default("en-IN")
+  wasExecuted       Boolean  @default(false)
+  confirmationGiven Boolean  @default(false)
+  resultStatus      String   @default("SUCCESS") // SUCCESS, DENIED, CONFIRMATION_REQUIRED, ERROR
+  errorMessage      String?
+  createdAt         DateTime @default(now())
+
+  @@index([userId])
+  @@index([resolvedIntent])
+  @@index([createdAt])
+}
+
+// --- DMS / Document Template Engine (§15) ---
+
+enum DocumentTemplateType {
+  VOUCHER
+  ITINERARY
+  INVOICE
+  RECEIPT
+  BOOKING_CONFIRMATION
+  VISA_SHEET
+  SUPPLIER_CONTRACT
+}
+
+model DocumentTemplate {
+  id          String               @id @default(cuid())
+  name        String
+  code        String               @unique // e.g. "FLIGHT_VOUCHER_DEFAULT"
+  type        DocumentTemplateType @default(VOUCHER)
+  description String?
+  htmlLayout  String               // Template HTML with tokens: {{customerName}}, {{bookingRef}}, {{totalAmount}}
+  tokenSchema Json                 // Schema of expected replacement keys
+  version     String               @default("1.0.0")
+  isDefault   Boolean              @default(false)
+  isActive    Boolean              @default(true)
+  createdAt   DateTime             @default(now())
+  updatedAt   DateTime             @updatedAt
+
+  documents   GeneratedDocument[]
+
+  @@index([code])
+  @@index([type])
+}
+
+model GeneratedDocument {
+  id             String           @id @default(cuid())
+  templateId     String
+  template       DocumentTemplate @relation(fields: [templateId], references: [id])
+  entityType     String           // BOOKING, INVOICE, TRIP, QUOTE
+  entityId       String
+  documentNumber String           @unique // e.g. "DOC-2026-0001"
+  renderedHtml   String
+  pdfUrl         String?
+  tokenValues    Json
+  hash           String           // Integrity verification hash
+  status         String           @default("GENERATED") // GENERATED, VERIFIED, DELIVERED, REVOKED
+  generatedBy    String?
+  createdAt      DateTime         @default(now())
+  updatedAt      DateTime         @updatedAt
+
+  @@index([templateId])
+  @@index([entityType, entityId])
+  @@index([documentNumber])
+}
+
+// --- SaaS Admin Control Plane, Flags & Mode Rollover (§30-34) ---
+
+model FeatureFlagRecord {
+  id                String   @id @default(cuid())
+  key               String   @unique // e.g. "enable_social8_circles"
+  name              String
+  description       String?
+  isEnabled         Boolean  @default(false)
+  rolloutPercentage Int      @default(100) // 0 to 100
+  allowedTenants    String[] // Organization/Tenant IDs
+  allowedRoles      String[] // UserRoleType values
+  environments      String[] @default(["production", "staging", "development"])
+  updatedBy         String?
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  @@index([key])
+  @@index([isEnabled])
+}
+
+model OperationModeRecord {
+  id                  String   @id @default(cuid())
+  modeKey             String   @unique // B2C_TRAVELER, TRAVEL_AGENT, OPERATIONS_DISPATCH, CORPORATE_PORTAL
+  name                String
+  version             String   @default("1.0.0")
+  description         String?
+  navigationConfig    Json     // Array of navigation items for this mode
+  widgetConfig        Json     // Array of active dashboard widgets
+  defaultLandingRoute String   @default("/")
+  supportedRoles      String[] // Roles authorized to access this mode
+  status              String   @default("ACTIVE") // ACTIVE, STAGED, DEPRECATED, DISABLED
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+
+  @@index([modeKey])
+  @@index([status])
+}
+
+model TimedScheduleRecord {
+  id              String    @id @default(cuid())
+  title           String
+  targetType      String    // FEATURE_FLAG, OPERATION_MODE, RELEASE_PACKAGE
+  targetId        String
+  scheduledForUtc DateTime
+  status          String    @default("PENDING") // PENDING, EXECUTING, COMPLETED, FAILED, CANCELLED
+  executionPolicy String    @default("HEALTH_GATED") // IMMEDIATE, HEALTH_GATED
+  healthThreshold Json?     // Max error rate (e.g. 0.01), max latency (ms)
+  snapshotData    Json?     // Pre-rollover state for instant rollback
+  executedAt      DateTime?
+  logs            String?
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  @@index([targetType, targetId])
+  @@index([scheduledForUtc])
+  @@index([status])
+}
+
+// --- Idea Discovery Engine (§09, §45) ---
+
+enum IdeaStage {
+  CANDID8
+  EVALU8
+  EXPERIMEN8
+  ADOP8
+  ARCHIVE8
+}
+
+model IdeaCandidate {
+  id                String       @id @default(cuid())
+  title             String
+  problemStatement  String
+  targetPersona     String       // TRAVELER, AGENT, OPERATOR, SUPPLIER, DEVELOPER
+  sourceTrigger     String       // USER_FRICTION, TELEMETRY, COMPETITOR, AGENT_FEEDBACK
+  hypothesis        String
+  proposedSolution  String
+  strategicFitScore Float        @default(0.8)
+  feasibilityScore  Float        @default(0.8)
+  valueScore        Float        @default(0.8)
+  stage             IdeaStage    @default(CANDID8)
+  ownerId           String?
+  mappedEngine      String?      // Existing engine to extend (Anti-proliferation rule)
+  createdAt         DateTime     @default(now())
+  updatedAt         DateTime     @updatedAt
+
+  experiments       IdeaExperiment[]
+
+  @@index([stage])
+  @@index([targetPersona])
+  @@index([mappedEngine])
+}
+
+model IdeaExperiment {
+  id               String        @id @default(cuid())
+  ideaId           String
+  idea             IdeaCandidate @relation(fields: [ideaId], references: [id], onDelete: Cascade)
+  hypothesis       String
+  metricToObserve  String
+  successThreshold String
+  sampleSize       Int           @default(100)
+  status           String        @default("RUNNING") // RUNNING, CONCLUDED_SUCCESS, CONCLUDED_FAILED, ABORTED
+  concludedNotes   String?
+  createdAt        DateTime      @default(now())
+  updatedAt        DateTime      @updatedAt
+
+  @@index([ideaId])
+  @@index([status])
+}
+

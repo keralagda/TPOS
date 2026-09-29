@@ -1,0 +1,740 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "name": "TravelPlanet-Registry-Pack",
+  "version": "2.0.0",
+  "description": "Canonical Registry Artifact for Travel Planet built on H8 -> Voyage8",
+  "governance": {
+    "authority": "H8-Governance",
+    "rule": "Architecture changes require Registry diff/version updates. AI may recommend but must not silently mutate governed architecture."
+  },
+  "families": [
+    {
+      "id": "TP-FRAMEWORK-REGISTRY",
+      "name": "Framework & Operating Constitution",
+      "objects": [
+        {
+          "registry_id": "TP-FRAMEWORK-REGISTRY",
+          "object_id": "OBJ-FRAMEWORK-001",
+          "canonical_name": "Voyage8-Backbone",
+          "type": "DOCTRINE",
+          "version": "1.2.0",
+          "status": "APPROVED",
+          "derivation_method": "DECLARATIVE",
+          "confidence": 1.0,
+          "source_file_ref": "03_VOYAGE8_TRAVEL_BACKBONE.md"
+        },
+        {
+          "registry_id": "TP-FRAMEWORK-REGISTRY",
+          "object_id": "OBJ-FRAMEWORK-002",
+          "canonical_name": "B2C-First-B2B2C-Ready",
+          "type": "RULE",
+          "version": "1.0.0",
+          "status": "APPROVED",
+          "derivation_method": "DECLARATIVE",
+          "confidence": 1.0,
+          "source_file_ref": "02_PROJECT_CONSTITUTION.md"
+        }
+      ]
+    },
+    {
+      "id": "TP-BOOKING-REGISTRY",
+      "name": "Booking Lifecycle & Operations",
+      "objects": [
+        {
+          "registry_id": "TP-BOOKING-REGISTRY",
+          "object_id": "BKG-LIFECYCLE",
+          "canonical_name": "Booking State Machine",
+          "type": "WORKFLOW",
+          "version": "1.2.0",
+          "status": "APPROVED",
+          "derivation_method": "DECLARATIVE",
+          "confidence": 1.0,
+          "source_file_ref": "15_IMPLEMENTATION_PHASES.md"
+        },
+        {
+          "registry_id": "TP-BOOKING-REGISTRY",
+          "object_id": "BKG-CONSEQUENTIAL-GATE",
+          "canonical_name": "Cancellation & Refund Authorization Gate",
+          "type": "RULE",
+          "version": "1.2.0",
+          "status": "APPROVED",
+          "derivation_method": "DECLARATIVE",
+          "confidence": 1.0,
+          "source_file_ref": "07_ADMIN_OS.md"
+        }
+      ]
+    },
+    {
+      "id": "TP-DESTINATION-REGISTRY",
+      "name": "Destinations & Geography",
+      "objects": [
+        {
+          "registry_id": "TP-DESTINATION-REGISTRY",
+          "object_id": "DEST-DUBAI",
+          "canonical_name": "Dubai, UAE",
+          "type": "ENTITY",
+          "version": "1.0.0",
+          "status": "ACTIVE",
+          "derivation_method": "SEEDED",
+          "confidence": 1.0,
+          "source_file_ref": "20_SEED_DATA.md"
+        },
+        {
+          "registry_id": "TP-DESTINATION-REGISTRY",
+          "object_id": "DEST-BALI",
+          "canonical_name": "Bali, Indonesia",
+          "type": "ENTITY",
+          "version": "1.0.0",
+          "status": "ACTIVE",
+          "derivation_method": "SEEDED",
+          "confidence": 1.0,
+          "source_file_ref": "20_SEED_DATA.md"
+        },
+        {
+          "registry_id": "TP-DESTINATION-REGISTRY",
+          "object_id": "DEST-SINGAPORE",
+          "canonical_name": "Singapore",
+          "type": "ENTITY",
+          "version": "1.0.0",
+          "status": "ACTIVE",
+          "derivation_method": "SEEDED",
+          "confidence": 1.0,
+          "source_file_ref": "20_SEED_DATA.md"
+        },
+        {
+          "registry_id": "TP-DESTINATION-REGISTRY",
+          "object_id": "DEST-THAILAND",
+          "canonical_name": "Thailand",
+          "type": "ENTITY",
+          "version": "1.0.0",
+          "status": "ACTIVE",
+          "derivation_method": "SEEDED",
+          "confidence": 1.0,
+          "source_file_ref": "20_SEED_DATA.md"
+        },
+        {
+          "registry_id": "TP-DESTINATION-REGISTRY",
+          "object_id": "DEST-KASHMIR",
+          "canonical_name": "Kashmir, India",
+          "type": "ENTITY",
+          "version": "1.0.0",
+          "status": "ACTIVE",
+          "derivation_method": "SEEDED",
+          "confidence": 1.0,
+          "source_file_ref": "20_SEED_DATA.md"
+        },
+        {
+          "registry_id": "TP-DESTINATION-REGISTRY",
+          "object_id": "DEST-KERALA",
+          "canonical_name": "Kerala, India",
+          "type": "ENTITY",
+          "version": "1.0.0",
+          "status": "ACTIVE",
+          "derivation_method": "SEEDED",
+          "confidence": 1.0,
+          "source_file_ref": "20_SEED_DATA.md"
+        }
+      ]
+    },
+    {
+      "id": "TP-FINANCE-REGISTRY",
+      "name": "Finance, Accounting & Ledgers",
+      "objects": [
+        {
+          "registry_id": "TP-FINANCE-REGISTRY",
+          "object_id": "FIN-LEDGER-MODEL",
+          "canonical_name": "Double Entry General Ledger",
+          "type": "RULE",
+          "version": "1.2.0",
+          "status": "APPROVED",
+          "derivation_method": "DECLARATIVE",
+          "confidence": 1.0,
+          "source_file_ref": "08_CRM_ERP_FINANCE.md"
+        },
+        {
+          "registry_id": "TP-FINANCE-REGISTRY",
+          "object_id": "FIN-SETTLEMENT-BATCH",
+          "canonical_name": "Automated Bi-Weekly Supplier Settlement Batch",
+          "type": "WORKFLOW",
+          "version": "1.2.0",
+          "status": "APPROVED",
+          "derivation_method": "DECLARATIVE",
+          "confidence": 1.0,
+          "source_file_ref": "08_CRM_ERP_FINANCE.md"
+        }
+      ]
+    },
+    {
+      "id": "TP-CONNECTOR-REGISTRY",
+      "name": "Integration Connector Definitions",
+      "objects": [
+        {
+          "registry_id": "TP-CONNECTOR-REGISTRY",
+          "object_id": "CONN-AKBAR",
+          "canonical_name": "Akbar Travels API",
+          "type": "CONNECTOR",
+          "version": "1.0.0",
+          "status": "NOT_CONFIGURED",
+          "derivation_method": "SPECIFIED",
+          "confidence": 0.9,
+          "source_file_ref": "10_INITIAL_CONNECTORS.md"
+        },
+        {
+          "registry_id": "TP-CONNECTOR-REGISTRY",
+          "object_id": "CONN-BOOKING",
+          "canonical_name": "Booking.com Partner API",
+          "type": "CONNECTOR",
+          "version": "1.0.0",
+          "status": "NOT_CONFIGURED",
+          "derivation_method": "SPECIFIED",
+          "confidence": 0.9,
+          "source_file_ref": "10_INITIAL_CONNECTORS.md"
+        },
+        {
+          "registry_id": "TP-CONNECTOR-REGISTRY",
+          "object_id": "CONN-RAZORPAY",
+          "canonical_name": "Razorpay Payment Gateway",
+          "type": "CONNECTOR",
+          "version": "1.0.0",
+          "status": "NOT_CONFIGURED",
+          "derivation_method": "SPECIFIED",
+          "confidence": 1.0,
+          "source_file_ref": "11_PAYMENT_HUB.md"
+        },
+        {
+          "registry_id": "TP-CONNECTOR-REGISTRY",
+          "object_id": "CONN-AMADEUS",
+          "canonical_name": "Amadeus GDS Self-Service API",
+          "type": "CONNECTOR",
+          "version": "1.0.0",
+          "status": "NOT_CONFIGURED",
+          "derivation_method": "SPECIFIED",
+          "confidence": 0.9,
+          "source_file_ref": "10_INITIAL_CONNECTORS.md"
+        },
+        {
+          "registry_id": "TP-CONNECTOR-REGISTRY",
+          "object_id": "CONN-CASHFREE",
+          "canonical_name": "Cashfree Payments Gateway",
+          "type": "CONNECTOR",
+          "version": "1.0.0",
+          "status": "NOT_CONFIGURED",
+          "derivation_method": "SPECIFIED",
+          "confidence": 0.9,
+          "source_file_ref": "10_INITIAL_CONNECTORS.md"
+        },
+        {
+          "registry_id": "TP-CONNECTOR-REGISTRY",
+          "object_id": "CONN-GOOGLE-MAPS",
+          "canonical_name": "Google Maps Platform Geolocation & Routing",
+          "type": "CONNECTOR",
+          "version": "1.0.0",
+          "status": "DEMO",
+          "derivation_method": "SPECIFIED",
+          "confidence": 1.0,
+          "source_file_ref": "10_INITIAL_CONNECTORS.md"
+        },
+        {
+          "registry_id": "TP-CONNECTOR-REGISTRY",
+          "object_id": "WH-GATEWAY",
+          "canonical_name": "Inbound Webhook Verification Gateway",
+          "type": "GATEWAY",
+          "version": "1.0.0",
+          "status": "ACTIVE",
+          "derivation_method": "DECLARATIVE",
+          "confidence": 1.0,
+          "source_file_ref": "09_CONNECT_HUB.md"
+        },
+        {
+          "registry_id": "TP-CONNECTOR-REGISTRY",
+          "object_id": "SYNC-DELTA-ENGINE",
+          "canonical_name": "Background Offer Freshness & Delta Sync Engine",
+          "type": "SERVICE",
+          "version": "1.0.0",
+          "status": "ACTIVE",
+          "derivation_method": "DECLARATIVE",
+          "confidence": 1.0,
+          "source_file_ref": "09_CONNECT_HUB.md"
+        }
+      ]
+    },
+    {
+      "id": "TP-AI-SKILL-REGISTRY",
+      "name": "Voyage8 AI Assistant Skills",
+      "objects": [
+        {
+          "registry_id": "TP-AI-SKILL-REGISTRY",
+          "object_id": "AI-SKILL-01",
+          "canonical_name": "summarize_bookings",
+          "type": "RULE",
+          "version": "1.0.0",
+          "status": "ACTIVE",
+          "derivation_method": "SPECIFIED",
+          "confidence": 1.0,
+          "source_file_ref": "12_AI_ASSISTANT.md"
+        },
+        {
+          "registry_id": "TP-AI-SKILL-REGISTRY",
+          "object_id": "AI-SKILL-02",
+          "canonical_name": "detect_price_anomalies",
+          "type": "RULE",
+          "version": "1.0.0",
+          "status": "ACTIVE",
+          "derivation_method": "SPECIFIED",
+          "confidence": 1.0,
+          "source_file_ref": "12_AI_ASSISTANT.md"
+        },
+        {
+          "registry_id": "TP-AI-SKILL-REGISTRY",
+          "object_id": "AI-SKILL-03",
+          "canonical_name": "consequential_action_confirmation_gate",
+          "type": "RULE",
+          "version": "1.0.0",
+          "status": "ACTIVE",
+          "derivation_method": "SPECIFIED",
+          "confidence": 1.0,
+          "source_file_ref": "12_AI_ASSISTANT.md"
+        },
+        {
+          "registry_id": "TP-AI-SKILL-REGISTRY",
+          "object_id": "AI-SKILL-04",
+          "canonical_name": "analyze_revenue",
+          "type": "RULE",
+          "version": "1.0.0",
+          "status": "ACTIVE",
+          "derivation_method": "SPECIFIED",
+          "confidence": 1.0,
+          "source_file_ref": "12_AI_ASSISTANT.md"
+        },
+        {
+          "registry_id": "TP-AI-SKILL-REGISTRY",
+          "object_id": "AI-SKILL-05",
+          "canonical_name": "customer_segmentation",
+          "type": "RULE",
+          "version": "1.0.0",
+          "status": "ACTIVE",
+          "derivation_method": "SPECIFIED",
+          "confidence": 1.0,
+          "source_file_ref": "12_AI_ASSISTANT.md"
+        },
+        {
+          "registry_id": "TP-AI-SKILL-REGISTRY",
+          "object_id": "AI-SKILL-06",
+          "canonical_name": "supplier_analysis",
+          "type": "RULE",
+          "version": "1.0.0",
+          "status": "ACTIVE",
+          "derivation_method": "SPECIFIED",
+          "confidence": 1.0,
+          "source_file_ref": "12_AI_ASSISTANT.md"
+        },
+        {
+          "registry_id": "TP-AI-SKILL-REGISTRY",
+          "object_id": "AI-SKILL-07",
+          "canonical_name": "discover_offers",
+          "type": "RULE",
+          "version": "1.0.0",
+          "status": "ACTIVE",
+          "derivation_method": "SPECIFIED",
+          "confidence": 1.0,
+          "source_file_ref": "12_AI_ASSISTANT.md"
+        },
+        {
+          "registry_id": "TP-AI-SKILL-REGISTRY",
+          "object_id": "AI-SKILL-08",
+          "canonical_name": "destination_trend_analysis",
+          "type": "RULE",
+          "version": "1.0.0",
+          "status": "ACTIVE",
+          "derivation_method": "SPECIFIED",
+          "confidence": 1.0,
+          "source_file_ref": "12_AI_ASSISTANT.md"
+        },
+        {
+          "registry_id": "TP-AI-SKILL-REGISTRY",
+          "object_id": "AI-SKILL-09",
+          "canonical_name": "connector_diagnosis",
+          "type": "RULE",
+          "version": "1.0.0",
+          "status": "ACTIVE",
+          "derivation_method": "SPECIFIED",
+          "confidence": 1.0,
+          "source_file_ref": "12_AI_ASSISTANT.md"
+        },
+        {
+          "registry_id": "TP-AI-SKILL-REGISTRY",
+          "object_id": "AI-SKILL-10",
+          "canonical_name": "generate_report",
+          "type": "RULE",
+          "version": "1.0.0",
+          "status": "ACTIVE",
+          "derivation_method": "SPECIFIED",
+          "confidence": 1.0,
+          "source_file_ref": "12_AI_ASSISTANT.md"
+        },
+        {
+          "registry_id": "TP-AI-SKILL-REGISTRY",
+          "object_id": "AI-SKILL-11",
+          "canonical_name": "draft_campaign",
+          "type": "RULE",
+          "version": "1.0.0",
+          "status": "ACTIVE",
+          "derivation_method": "SPECIFIED",
+          "confidence": 1.0,
+          "source_file_ref": "12_AI_ASSISTANT.md"
+        },
+        {
+          "registry_id": "TP-AI-SKILL-REGISTRY",
+          "object_id": "AI-SKILL-12",
+          "canonical_name": "operations_triage",
+          "type": "RULE",
+          "version": "1.0.0",
+          "status": "ACTIVE",
+          "derivation_method": "SPECIFIED",
+          "confidence": 1.0,
+          "source_file_ref": "12_AI_ASSISTANT.md"
+        },
+        {
+          "registry_id": "TP-AI-SKILL-REGISTRY",
+          "object_id": "AI-SKILL-13",
+          "canonical_name": "itinerary_review",
+          "type": "RULE",
+          "version": "1.0.0",
+          "status": "ACTIVE",
+          "derivation_method": "SPECIFIED",
+          "confidence": 1.0,
+          "source_file_ref": "12_AI_ASSISTANT.md"
+        },
+        {
+          "registry_id": "TP-AI-SKILL-REGISTRY",
+          "object_id": "AI-SKILL-14",
+          "canonical_name": "support_summarization",
+          "type": "RULE",
+          "version": "1.0.0",
+          "status": "ACTIVE",
+          "derivation_method": "SPECIFIED",
+          "confidence": 1.0,
+          "source_file_ref": "12_AI_ASSISTANT.md"
+        },
+        {
+          "registry_id": "TP-AI-SKILL-REGISTRY",
+          "object_id": "ITINERARY-SYNTH-16",
+          "canonical_name": "16-Stage Canonical Journey Runtime & Pacing Engine",
+          "type": "WORKFLOW",
+          "version": "1.0.0",
+          "status": "ACTIVE",
+          "derivation_method": "DECLARATIVE",
+          "confidence": 1.0,
+          "source_file_ref": "03_VOYAGE8_TRAVEL_BACKBONE.md"
+        }
+      ]
+    },
+    {
+      "id": "TP-B2B2C-REGISTRY",
+      "name": "B2B2C Partner, Reseller & Affiliate Ecosystem",
+      "objects": [
+        {
+          "registry_id": "TP-B2B2C-REGISTRY",
+          "object_id": "B2B2C-PARTNER-CORE",
+          "canonical_name": "Multi-Tenant Partner & Reseller Architecture",
+          "type": "FRAMEWORK",
+          "version": "1.0.0",
+          "status": "ACTIVE",
+          "derivation_method": "DECLARATIVE",
+          "confidence": 1.0,
+          "source_file_ref": "02_PROJECT_CONSTITUTION.md"
+        },
+        {
+          "registry_id": "TP-B2B2C-REGISTRY",
+          "object_id": "PARTNER-WALLET-SYSTEM",
+          "canonical_name": "Partner Digital Wallet & Credit Line Drawdown",
+          "type": "SERVICE",
+          "version": "1.0.0",
+          "status": "ACTIVE",
+          "derivation_method": "DECLARATIVE",
+          "confidence": 1.0,
+          "source_file_ref": "08_CRM_ERP_FINANCE.md"
+        },
+        {
+          "registry_id": "TP-B2B2C-REGISTRY",
+          "object_id": "RESELLER-MARKUP-ENGINE",
+          "canonical_name": "Dynamic Agent Markup & Multi-Tier Commission Splits",
+          "type": "RULE",
+          "version": "1.0.0",
+          "status": "ACTIVE",
+          "derivation_method": "DECLARATIVE",
+          "confidence": 1.0,
+          "source_file_ref": "08_CRM_ERP_FINANCE.md"
+        },
+        {
+          "registry_id": "TP-B2B2C-REGISTRY",
+          "object_id": "WHITE-LABEL-ENGINE",
+          "canonical_name": "White-Label Brand Profiles & Co-Branded Vouchers",
+          "type": "SERVICE",
+          "version": "1.0.0",
+          "status": "ACTIVE",
+          "derivation_method": "DECLARATIVE",
+          "confidence": 1.0,
+          "source_file_ref": "02_PROJECT_CONSTITUTION.md"
+        }
+      ]
+    },
+    {
+      "id": "TP-QA-GTM-REGISTRY",
+      "name": "Quality Assurance & GTM Certification",
+      "objects": [
+        {
+          "registry_id": "TP-QA-GTM-REGISTRY",
+          "object_id": "QA-16-LAYER-SUITE",
+          "canonical_name": "16-Layer Automated GTM Verification Suite",
+          "type": "FRAMEWORK",
+          "version": "1.0.0",
+          "status": "APPROVED",
+          "derivation_method": "DECLARATIVE",
+          "confidence": 1.0,
+          "source_file_ref": "16_QA_GTM.md"
+        },
+        {
+          "registry_id": "TP-QA-GTM-REGISTRY",
+          "object_id": "LEDGER-INVARIANT-TEST",
+          "canonical_name": "Double-Entry Balance Runtime Invariant Verifier",
+          "type": "RULE",
+          "version": "1.0.0",
+          "status": "APPROVED",
+          "derivation_method": "DECLARATIVE",
+          "confidence": 1.0,
+          "source_file_ref": "08_CRM_ERP_FINANCE.md"
+        },
+        {
+          "registry_id": "TP-QA-GTM-REGISTRY",
+          "object_id": "AI-GATEKEEPER-TEST",
+          "canonical_name": "H8 AI Consequential Action Gatekeeper Assurance",
+          "type": "RULE",
+          "version": "1.0.0",
+          "status": "APPROVED",
+          "derivation_method": "DECLARATIVE",
+          "confidence": 1.0,
+          "source_file_ref": "12_AI_ASSISTANT.md"
+        }
+      ]
+    },
+    {
+      "id": "TP-OPERATIONS-RUNBOOK-REGISTRY",
+      "name": "Operations Runbook & Health Telemetry",
+      "objects": [
+        {
+          "registry_id": "TP-OPERATIONS-RUNBOOK-REGISTRY",
+          "object_id": "DAILY-OPERATIONAL-CHECKS",
+          "canonical_name": "11-Vector Continuous Operational Health Telemetry",
+          "type": "SERVICE",
+          "version": "1.0.0",
+          "status": "ACTIVE",
+          "derivation_method": "DECLARATIVE",
+          "confidence": 1.0,
+          "source_file_ref": "21_OPERATIONS_RUNBOOK.md"
+        },
+        {
+          "registry_id": "TP-OPERATIONS-RUNBOOK-REGISTRY",
+          "object_id": "CIRCUIT-BREAKER-FALLBACK",
+          "canonical_name": "Supplier Latency & Outage Circuit Breaker",
+          "type": "WORKFLOW",
+          "version": "1.0.0",
+          "status": "ACTIVE",
+          "derivation_method": "DECLARATIVE",
+          "confidence": 1.0,
+          "source_file_ref": "21_OPERATIONS_RUNBOOK.md"
+        },
+        {
+          "registry_id": "TP-OPERATIONS-RUNBOOK-REGISTRY",
+          "object_id": "INCIDENT-TRIAGE-RUNBOOK",
+          "canonical_name": "Critical Incident Containment & Post-Mortem Workflow",
+          "type": "WORKFLOW",
+          "version": "1.0.0",
+          "status": "ACTIVE",
+          "derivation_method": "DECLARATIVE",
+          "confidence": 1.0,
+          "source_file_ref": "21_OPERATIONS_RUNBOOK.md"
+        }
+      ]
+    },
+    {
+      "id": "TP-SOCIAL8-REGISTRY",
+      "name": "Social8 / Travel Social Graph & Community",
+      "objects": [
+        {
+          "registry_id": "TP-SOCIAL8-REGISTRY",
+          "object_id": "SOCIAL8-CIRCLE-LIFECYCLE",
+          "canonical_name": "Travel Circle Lifecycle & Membership State Machine",
+          "type": "WORKFLOW",
+          "version": "2.0.0",
+          "status": "APPROVED",
+          "derivation_method": "DECLARATIVE",
+          "confidence": 1.0,
+          "source_file_ref": "16_SOCIAL8_TRAVEL_GRAPH.md"
+        },
+        {
+          "registry_id": "TP-SOCIAL8-REGISTRY",
+          "object_id": "SOCIAL8-CONVERSION-GATE",
+          "canonical_name": "Discussion to Journey Proposal & Intent Conversion Gate",
+          "type": "RULE",
+          "version": "2.0.0",
+          "status": "APPROVED",
+          "derivation_method": "DECLARATIVE",
+          "confidence": 1.0,
+          "source_file_ref": "16_SOCIAL8_TRAVEL_GRAPH.md"
+        }
+      ]
+    },
+    {
+      "id": "TP-GEM8-REGISTRY",
+      "name": "GEM8 / Beyond-The-Icon Discovery & Local Provenance",
+      "objects": [
+        {
+          "registry_id": "TP-GEM8-REGISTRY",
+          "object_id": "GEM8-PROVENANCE-EVALUATOR",
+          "canonical_name": "Local Discovery Provenance & Confidence Scoring Engine",
+          "type": "SERVICE",
+          "version": "2.0.0",
+          "status": "APPROVED",
+          "derivation_method": "DECLARATIVE",
+          "confidence": 1.0,
+          "source_file_ref": "17_GEM8_DISCOVERY.md"
+        },
+        {
+          "registry_id": "TP-GEM8-REGISTRY",
+          "object_id": "GEM8-ICONIC-PAIRING",
+          "canonical_name": "Iconic Landmark to Offbeat Local Gem Pairing Graph",
+          "type": "ENTITY",
+          "version": "2.0.0",
+          "status": "APPROVED",
+          "derivation_method": "DECLARATIVE",
+          "confidence": 1.0,
+          "source_file_ref": "17_GEM8_DISCOVERY.md"
+        }
+      ]
+    },
+    {
+      "id": "TP-VOICE-REGISTRY",
+      "name": "VN8 / VO8 Voice Navigation, Operations & Governed Functions",
+      "objects": [
+        {
+          "registry_id": "TP-VOICE-REGISTRY",
+          "object_id": "VOICE-INTENT-RESOLVER",
+          "canonical_name": "Multilingual Intent & Phrase Resolver (en-IN, ml-IN, hi-IN)",
+          "type": "SERVICE",
+          "version": "2.0.0",
+          "status": "APPROVED",
+          "derivation_method": "DECLARATIVE",
+          "confidence": 1.0,
+          "source_file_ref": "19_VOICE_NAVIGATION_OPERATIONS_SEARCH.md"
+        },
+        {
+          "registry_id": "TP-VOICE-REGISTRY",
+          "object_id": "VOICE-CONFIRMATION-GATE",
+          "canonical_name": "High-Risk Voice Operation Confirmation & RBAC Enforcer",
+          "type": "RULE",
+          "version": "2.0.0",
+          "status": "APPROVED",
+          "derivation_method": "DECLARATIVE",
+          "confidence": 1.0,
+          "source_file_ref": "19_VOICE_NAVIGATION_OPERATIONS_SEARCH.md"
+        }
+      ]
+    },
+    {
+      "id": "TP-DMS-REGISTRY",
+      "name": "DMS / Document Template Engine & Verification",
+      "objects": [
+        {
+          "registry_id": "TP-DMS-REGISTRY",
+          "object_id": "DMS-TEMPLATE-RENDERER",
+          "canonical_name": "Dynamic Tokenized Travel Document Generator (Vouchers, Invoices, Itineraries)",
+          "type": "SERVICE",
+          "version": "2.0.0",
+          "status": "APPROVED",
+          "derivation_method": "DECLARATIVE",
+          "confidence": 1.0,
+          "source_file_ref": "15_DMS_DOCUMENT_TEMPLATE_ENGINE.md"
+        },
+        {
+          "registry_id": "TP-DMS-REGISTRY",
+          "object_id": "DMS-INTEGRITY-VERIFIER",
+          "canonical_name": "Traveler Document Hash & Verification Guard",
+          "type": "RULE",
+          "version": "2.0.0",
+          "status": "APPROVED",
+          "derivation_method": "DECLARATIVE",
+          "confidence": 1.0,
+          "source_file_ref": "15_DMS_DOCUMENT_TEMPLATE_ENGINE.md"
+        }
+      ]
+    },
+    {
+      "id": "TP-CONTROL-PLANE-REGISTRY",
+      "name": "SaaS Admin Control Plane, Feature Flags & Operation Mode Rollovers",
+      "objects": [
+        {
+          "registry_id": "TP-CONTROL-PLANE-REGISTRY",
+          "object_id": "DYNAMIC-FEATURE-FLAGS",
+          "canonical_name": "Server-Authoritative Feature Flag & Tenant Targeting System",
+          "type": "SERVICE",
+          "version": "2.0.0",
+          "status": "APPROVED",
+          "derivation_method": "DECLARATIVE",
+          "confidence": 1.0,
+          "source_file_ref": "31_FEATURE_FLAGS.md"
+        },
+        {
+          "registry_id": "TP-CONTROL-PLANE-REGISTRY",
+          "object_id": "OPERATION-MODE-ROLLOVER",
+          "canonical_name": "Versioned Workspace Experience & Rollover State Engine",
+          "type": "WORKFLOW",
+          "version": "2.0.0",
+          "status": "APPROVED",
+          "derivation_method": "DECLARATIVE",
+          "confidence": 1.0,
+          "source_file_ref": "33_OPERATION_MODE_ROLLOVER.md"
+        },
+        {
+          "registry_id": "TP-CONTROL-PLANE-REGISTRY",
+          "object_id": "TIMED-SCHEDULE-HEALTH-GATE",
+          "canonical_name": "UTC Timed Schedule & Health-Gated OTA Rollout Manager",
+          "type": "WORKFLOW",
+          "version": "2.0.0",
+          "status": "APPROVED",
+          "derivation_method": "DECLARATIVE",
+          "confidence": 1.0,
+          "source_file_ref": "32_TIMED_SCHEDULE_OTA_ROLLOVER.md"
+        }
+      ]
+    },
+    {
+      "id": "TP-IDEA-DISCOVERY-REGISTRY",
+      "name": "Idea Discovery Engine & Zero-Gap Innovation Lifecycle",
+      "objects": [
+        {
+          "registry_id": "TP-IDEA-DISCOVERY-REGISTRY",
+          "object_id": "CANDID8-LIFECYCLE-MANAGER",
+          "canonical_name": "CANDID8 -> EVALU8 -> EXPERIMEN8 -> ADOP8 Innovation Gate",
+          "type": "WORKFLOW",
+          "version": "2.0.0",
+          "status": "APPROVED",
+          "derivation_method": "DECLARATIVE",
+          "confidence": 1.0,
+          "source_file_ref": "09_IDEA_DISCOVERY_ENGINE.md"
+        },
+        {
+          "registry_id": "TP-IDEA-DISCOVERY-REGISTRY",
+          "object_id": "ANTI-PROLIFERATION-GUARD",
+          "canonical_name": "Architecture Anti-Proliferation & Core Engine Consolidation Rule",
+          "type": "RULE",
+          "version": "2.0.0",
+          "status": "APPROVED",
+          "derivation_method": "DECLARATIVE",
+          "confidence": 1.0,
+          "source_file_ref": "09_IDEA_DISCOVERY_ENGINE.md"
+        }
+      ]
+    }
+  ]
+}

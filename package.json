@@ -1,0 +1,52 @@
+{
+  "name": "travel-planet",
+  "version": "1.0.0",
+  "description": "Travel Planet — Travel Management & Directory OS built on H8 -> Voyage8",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "prisma generate && next build",
+    "start": "next start",
+    "lint": "next lint",
+    "prisma:generate": "prisma generate",
+    "prisma:migrate": "prisma migrate dev",
+    "prisma:push": "prisma db push",
+    "prisma:seed": "ts-node prisma/seed.ts",
+    "db:seed": "ts-node prisma/seed.ts",
+    "db:seed:vibe": "npm run db:seed:demo-users && ts-node prisma/seed-vibe.ts",
+    "db:seed:demo-users": "ts-node --project prisma/tsconfig.seed.json prisma/seed-demo-users.ts",
+    "db:seed:rbac": "ts-node prisma/seed.ts",
+    "db:push": "prisma db push",
+    "test:rbac": "node tests/rbac-matrix.test.js",
+    "test:tenant-isolation": "node tests/tenant-isolation.test.js",
+    "test:operational-chain": "node tests/operational-chain.test.js",
+    "test:vibe": "node tests/vibe-engine.test.js",
+    "test:bundle": "node tests/exclusive-bundle.test.js",
+    "test:enhancements": "ts-node --project prisma/tsconfig.seed.json tests/bundle-enhancements.test.js",
+    "test:vibe8": "node tests/vibe8-hestia8.test.js",
+    "test:dms8": "node tests/dms8.test.js",
+    "test:hardening": "node tests/production-hardening.test.js",
+    "test:crude8": "ts-node --project prisma/tsconfig.seed.json tests/crude8.test.js",
+    "test:crude8-studio": "ts-node --project prisma/tsconfig.seed.json tests/crude8-studio.test.js",
+    "test:all": "node tests/rbac-matrix.test.js && node tests/tenant-isolation.test.js && node tests/operational-chain.test.js && node tests/vibe-engine.test.js && node tests/exclusive-bundle.test.js && ts-node --project prisma/tsconfig.seed.json tests/bundle-enhancements.test.js && node tests/vibe8-hestia8.test.js && node tests/dms8.test.js && node tests/production-hardening.test.js && ts-node --project prisma/tsconfig.seed.json tests/crude8.test.js"
+  },
+  "dependencies": {
+    "@prisma/client": "^6.5.0",
+    "lucide-react": "^0.441.0",
+    "next": "^14.2.10",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "zod": "^3.23.8"
+  },
+  "devDependencies": {
+    "@types/node": "^20.16.5",
+    "@types/react": "^18.3.5",
+    "@types/react-dom": "^18.3.0",
+    "autoprefixer": "^10.4.20",
+    "postcss": "^8.4.45",
+    "prisma": "^6.5.0",
+    "tailwindcss": "^3.4.10",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.6.2"
+  }
+}
