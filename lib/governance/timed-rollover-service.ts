@@ -33,12 +33,12 @@ export class TimedRolloverService {
       const existing = await prisma.featureFlagRecord.findUnique({
         where: { key: input.targetId },
       });
-      snapshot = existing ? { isEnabled: existing.isEnabled, rules: existing.rules } : null;
+      snapshot = existing ? { isEnabled: existing.isEnabled, rolloutPercentage: existing.rolloutPercentage } : null;
     } else if (input.targetType === 'OPERATION_MODE') {
-      const active = await prisma.operationModeRecord.findFirst({
-        where: { isActive: true },
+      const target = await prisma.operationModeRecord.findUnique({
+        where: { modeKey: input.targetId },
       });
-      snapshot = active ? { code: active.code, version: active.version } : null;
+      snapshot = target ? { modeKey: target.modeKey, version: target.version, status: target.status } : null;
     }
 
     return prisma.timedScheduleRecord.create({
@@ -91,15 +91,17 @@ export class TimedRolloverService {
 
         // Apply Mutation
         if (record.targetType === 'FEATURE_FLAG') {
-          await ControlPlaneService.setFlag(
+          await ControlPlaneService.updateFeatureFlag(
             record.targetId,
-            targetData.targetValue === true || targetData.targetValue === 'true',
-            'Scheduled OTA Rollover Execution'
+            { isEnabled: targetData.targetValue === true || targetData.targetValue === 'true' }
           );
         } else if (record.targetType === 'OPERATION_MODE') {
-          await ControlPlaneService.setOperationMode(
+          const targetStatus = typeof targetData.targetValue === 'string'
+            ? targetData.targetValue
+            : targetData.targetValue?.status;
+          await ControlPlaneService.updateOperationMode(
             record.targetId,
-            'Scheduled Mode Transition'
+            { status: targetStatus || 'ACTIVE' }
           );
         }
 
@@ -142,16 +144,15 @@ export class TimedRolloverService {
     const snapshot = (record.snapshotData as any).previousState;
 
     if (record.targetType === 'FEATURE_FLAG' && snapshot) {
-      await ControlPlaneService.setFlag(
-        record.targetId,
-        snapshot.isEnabled,
-        `Emergency Rollback of Schedule [${record.id}]`
-      );
+      await ControlPlaneService.updateFeatureFlag(record.targetId, {
+        isEnabled: snapshot.isEnabled,
+        ...(typeof snapshot.rolloutPercentage === 'number' ? { rolloutPercentage: snapshot.rolloutPercentage } : {}),
+      });
     } else if (record.targetType === 'OPERATION_MODE' && snapshot) {
-      await ControlPlaneService.setOperationMode(
-        snapshot.code,
-        `Emergency Rollback of Schedule [${record.id}]`
-      );
+      await ControlPlaneService.updateOperationMode(record.targetId, {
+        status: snapshot.status || 'ACTIVE',
+        ...(snapshot.version ? { version: snapshot.version } : {}),
+      });
     }
 
     return prisma.timedScheduleRecord.update({

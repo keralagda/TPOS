@@ -28,7 +28,7 @@ interface Mode {
 export function ControlPlanePanel() {
   const [flags, setFlags] = useState<Flag[]>([]);
   const [modes, setModes] = useState<Mode[]>([]);
-  const [activeTab, setActiveTab] = useState<'FLAGS' | 'MODES'>('FLAGS');
+  const [activeTab, setActiveTab] = useState<'FLAGS' | 'MODES' | 'ROLLOVERS'>('FLAGS');
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {

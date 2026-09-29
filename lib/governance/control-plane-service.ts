@@ -163,6 +163,25 @@ export class ControlPlaneService {
   }
 
   /**
+   * Update a versioned operation mode (§33) — used by scheduled rollovers & rollbacks
+   */
+  static async updateOperationMode(modeKey: string, data: Partial<{
+    name: string;
+    description: string;
+    version: string;
+    navigationConfig: any;
+    widgetConfig: any;
+    defaultLandingRoute: string;
+    supportedRoles: string[];
+    status: string;
+  }>) {
+    return prisma.operationModeRecord.update({
+      where: { modeKey },
+      data,
+    });
+  }
+
+  /**
    * Check if a feature flag is active for a given tenant/role (§31)
    */
   static async isFeatureActive(key: string, tenantId?: string, userRole?: string): Promise<boolean> {

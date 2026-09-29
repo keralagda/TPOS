@@ -58,6 +58,7 @@ export const AITripPlanner: React.FC = () => {
       });
 
       if (res.ok) {
+        const payload = await res.json();
         const pexelsList = (payload.data?.photos || []).map((p: any) => typeof p === 'string' ? p : (p.src?.large || p.src?.medium)).filter(Boolean);
         const photos = pexelsList.length > 0 ? pexelsList : [
           'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?q=80&w=800&auto=format&fit=crop'

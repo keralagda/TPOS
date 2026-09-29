@@ -159,16 +159,46 @@ export interface TravelContentEntity {
 // 5. LIVING JOURNEY OBJECT (§04)
 // ==========================================
 
-export interface JourneyStop {
+export interface JourneyItineraryDay {
   dayNumber: number;
-  placeName: string;
-  coordinates?: { lat: number; lng: number };
-  highlight: string;
-  activityIds: string[];
-  hotelId?: string;
-  transportType: 'PRIVATE_CHAUFFEUR' | 'DOMESTIC_FLIGHT' | 'SPEEDBOAT' | 'TRAIN' | 'SEAPLANE' | 'WALKING';
-  mealsIncluded: ('BREAKFAST' | 'LUNCH' | 'DINNER')[];
-  localExpertTips?: string;
+  title: string;
+  description: string;
+  location: string;
+  highlights: string[];
+  mealPlan?: string[];
+  accommodations?: string;
+  dynamicTriggers?: { condition: string; action?: string; fallbackPlan: string }[];
+}
+
+export interface JourneyPricing {
+  basePrice: number;
+  currency: string;
+  discountPercentage?: number;
+  tier?: string;
+}
+
+export interface JourneySocialProof {
+  rating: number;
+  totalBookings: number;
+  verifiedReviewsCount?: number;
+  featuredReview?: string;
+}
+
+export interface JourneyRealtimeVariables {
+  weatherConditions: {
+    currentTempC: number;
+    condition: string;
+    rainProbabilityPercent: number;
+  };
+  crowdIndex: string;
+  currentSeason: string;
+}
+
+export interface JourneySeoMeta {
+  metaTitle: string;
+  metaDescription: string;
+  focusKeyword: string;
+  secondaryKeywords: string[];
 }
 
 export interface JourneyLivingEntity {
@@ -176,24 +206,26 @@ export interface JourneyLivingEntity {
   canonicalId: string;
   slug: string;
   title: string;
+  summary: string;
   destination: string;
   country: string;
   durationDays: number;
   durationNights: number;
-  difficulty: 'EASY' | 'MODERATE' | 'CHALLENGING' | 'EXPEDITION';
-  pace: 'RELAXED' | 'BALANCED' | 'FAST_PACED';
-  basePrice: number;
-  currency: string;
-  stops: JourneyStop[];
-  inclusions: string[];
-  exclusions: string[];
-  requiredDocuments: string[];
-  minPax: number;
-  maxPax: number;
-  socialCircleId?: string;
-  seoProfile: SEOProfile;
-  aiScore: number;
-  status: ContentLifecycleStatus;
+  difficulty?: 'EASY' | 'MODERATE' | 'CHALLENGING' | 'EXPEDITION';
+  pace?: 'RELAXED' | 'BALANCED' | 'FAST_PACED';
+  theme?: string;
+  heroImage: string;
+  pricing: JourneyPricing;
+  itinerary: JourneyItineraryDay[];
+  realtimeVariables: JourneyRealtimeVariables;
+  socialProof: JourneySocialProof;
+  inclusions?: string[];
+  exclusions?: string[];
+  requiredDocuments?: string[];
+  minPax?: number;
+  maxPax?: number;
+  seo?: JourneySeoMeta;
+  status?: ContentLifecycleStatus;
 }
 
 // ==========================================
@@ -204,9 +236,12 @@ export interface DestinationStudioModel {
   id: string;
   canonicalId: string;
   name: string;
+  region: string;
   stateOrRegion: string;
   country: string;
   slug: string;
+  heroImage: string;
+  overview: { en: string; ml: string; hi: string };
   heroHeadline: string;
   tagline: string;
   overviewRichText: string;
@@ -223,6 +258,7 @@ export interface DestinationStudioModel {
     currentAdvisory?: string;
   };
   keyPlaces: { name: string; type: string; highlight: string; image: string }[];
+  topAttractions: { name: string; category?: string; description: string; timeNeeded?: string }[];
   hiddenGems: { name: string; provenanceNote: string; exclusivityScore: number }[];
   faqs: { question: string; answer: string }[];
   seo: SEOProfile;

@@ -4,7 +4,7 @@
  */
 
 import { VIBE8_LIVING_JOURNEYS, VIBE8_DESTINATIONS, VIBE8_THEMES } from './registries';
-import { JourneyLivingEntity, DestinationStudioModel, TravelContentItem, VIBE8ContentType } from './types';
+import { JourneyLivingEntity, DestinationStudioModel } from './types';
 
 export interface DataBindingFilter {
   destination?: string;

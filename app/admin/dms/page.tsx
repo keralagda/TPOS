@@ -666,11 +666,11 @@ export default function DMS8AdminPage() {
               </div>
 
               <div className="space-y-3">
-                {complianceAudit.alerts.map((alert, i) => (
-                  <div 
-                    key={i} 
+                {complianceAudit.alerts.map((alertItem, i) => (
+                  <div
+                    key={i}
                     className={`p-4 rounded-xl border flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs ${
-                      alert.urgency === 'CRITICAL_EXPIRED'
+                      alertItem.urgency === 'CRITICAL_EXPIRED'
                         ? 'bg-rose-950/30 border-rose-800/40 text-rose-200'
                         : 'bg-amber-950/30 border-amber-800/40 text-amber-200'
                     }`}
@@ -678,21 +678,21 @@ export default function DMS8AdminPage() {
                     <div>
                       <div className="flex items-center gap-2">
                         <AlertTriangle className="w-4 h-4 text-amber-400 shrink-0" />
-                        <span className="font-extrabold text-sm">{alert.documentTitle}</span>
+                        <span className="font-extrabold text-sm">{alertItem.documentTitle}</span>
                         <span className="text-[10px] font-mono px-2 py-0.5 bg-slate-900 text-white rounded">
-                          {alert.ownerName}
+                          {alertItem.ownerName}
                         </span>
                       </div>
                       <div className="mt-1 text-slate-300">
-                        Expiry Date: <strong>{alert.expiryDate}</strong> ({alert.daysRemaining} days remaining)
+                        Expiry Date: <strong>{alertItem.expiryDate}</strong> ({alertItem.daysRemaining} days remaining)
                       </div>
                       <div className="text-[11px] text-sky-400 mt-1 font-mono">
-                        Action: {alert.automatedActionRequired}
+                        Action: {alertItem.automatedActionRequired}
                       </div>
                     </div>
 
                     <button
-                      onClick={() => alert(`Automated renewal notification dispatched to ${alert.ownerName}`)}
+                      onClick={() => alert(`Automated renewal notification dispatched to ${alertItem.ownerName}`)}
                       className="px-3.5 py-1.5 bg-amber-600 hover:bg-amber-500 text-white font-bold rounded-xl text-xs shrink-0 transition"
                     >
                       Trigger Reminder

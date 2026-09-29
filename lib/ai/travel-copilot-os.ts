@@ -120,7 +120,7 @@ export class TravelCopilotOS {
       userRole: 'AI_OPERATOR',
       tenantId: 'tenant-default',
       bookingRef,
-      travelerName,
+      customerName: travelerName,
       destination
     };
 

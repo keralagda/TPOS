@@ -8,11 +8,12 @@ import {
 } from 'lucide-react';
 import { InternalLayout } from '@/components/internal/InternalLayout';
 import { VIBE8JourneyService, AdaptationEvent, AdaptationResult } from '@/lib/vibe8/journey-service';
+import { JourneyLivingEntity } from '@/lib/vibe8/types';
 import { HESTIA8SchemaEngine } from '@/lib/hestia8/schema-engine';
 
 export default function JourneyStudioAdminPage() {
-  const [journeys, setJourneys] = useState<any[]>(() => VIBE8JourneyService.listJourneys());
-  const [selectedJourney, setSelectedJourney] = useState<any>(journeys[0]);
+  const [journeys, setJourneys] = useState<JourneyLivingEntity[]>(() => VIBE8JourneyService.listJourneys());
+  const [selectedJourney, setSelectedJourney] = useState<JourneyLivingEntity>(journeys[0]);
   const [activeTab, setActiveTab] = useState<'OVERVIEW' | 'TRIGGER_SIMULATOR' | 'CREATE_JOURNEY' | 'SCHEMA_INSPECTOR'>('OVERVIEW');
 
   // Trigger Simulator State

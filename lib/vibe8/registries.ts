@@ -3,10 +3,9 @@
  * Single Source of Truth for Experience Composition, Living Journeys, Themes, and Dynamic Data Binding.
  */
 
-import { 
-  TravelContentEntity, TravelContentType, ContentLifecycleStatus,
-  JourneyLivingEntity, DestinationStudioModel, TravelThemeDefinition, 
-  TravelThemeKey, VIBE8ComponentDefinition 
+import {
+  TravelThemeDefinition,
+  TravelThemeKey, VIBE8ComponentDefinition
 } from './types';
 
 // ==========================================

@@ -4,6 +4,7 @@
  */
 
 import { VIBE8_LIVING_JOURNEYS } from './registries';
+import { JourneyLivingEntity } from './types';
 
 export interface JourneyCreationPayload {
   title: string;
@@ -45,33 +46,37 @@ export interface AdaptationResult {
 }
 
 export class VIBE8JourneyService {
-  private static journeys: any[] = [...VIBE8_LIVING_JOURNEYS];
+  private static journeys: JourneyLivingEntity[] = [...VIBE8_LIVING_JOURNEYS];
 
   /**
    * List all Living Journeys
    */
-  static listJourneys(): any[] {
+  static listJourneys(): JourneyLivingEntity[] {
     return this.journeys;
   }
 
   /**
    * Get Journey by Slug or ID
    */
-  static getJourneyBySlug(slug: string): any | undefined {
+  static getJourneyBySlug(slug: string): JourneyLivingEntity | undefined {
     return this.journeys.find(j => j.slug === slug || j.id === slug);
   }
 
   /**
    * Create or Save a new Living Journey
    */
-  static createJourney(payload: JourneyCreationPayload): any {
-    const newJourney: any = {
-      id: `journey-${Date.now()}`,
+  static createJourney(payload: JourneyCreationPayload): JourneyLivingEntity {
+    const now = Date.now();
+    const newJourney: JourneyLivingEntity = {
+      id: `journey-${now}`,
+      canonicalId: `CANON-JRN-${now}`,
       slug: payload.slug,
       title: payload.title,
       summary: `Tailored ${payload.durationDays}-day living journey exploring ${payload.destination}.`,
       destination: payload.destination,
+      country: 'India',
       durationDays: payload.durationDays,
+      durationNights: Math.max(0, payload.durationDays - 1),
       theme: payload.theme,
       heroImage: 'https://images.unsplash.com/photo-1602216056096-3b40cc0c9944?auto=format&fit=crop&w=1400&q=80',
       pricing: {
