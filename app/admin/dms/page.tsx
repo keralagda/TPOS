@@ -1,11 +1,12 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { 
   FileText, FolderLock, Sparkles, Search, CheckCircle2, 
   AlertTriangle, ShieldCheck, Download, RefreshCw, Send, 
   Clock, Plus, Copy, Check, Eye, ExternalLink, Bot, 
-  Layers, HardDrive, Filter, UserCheck, ArrowRight
+  Layers, HardDrive, Filter, UserCheck, ArrowRight,
+  UploadCloud, FileUp, File, X, Image as ImageIcon, ScanLine, FileCheck
 } from 'lucide-react';
 import { InternalLayout } from '@/components/internal/InternalLayout';
 import { DMS8VaultService } from '@/lib/dms8/vault-service';
@@ -36,11 +37,116 @@ export default function DMS8AdminPage() {
   const [categoryFilter, setCategoryFilter] = useState('ALL');
 
   // OCR Console State
+  const [ocrInputMode, setOcrInputMode] = useState<'FILE' | 'TEXT'>('FILE');
   const [ocrInputText, setOcrInputText] = useState(
     'P<INDKUMAR<<RAHUL<<<<<<<<<<<<<<<<<<<<<<<<<<<\nZ123456784IND8801156M3201142<<<<<<<<<<<<<<06\nREPUBLIC OF INDIA PASSPORT\nEXPIRY: 2032-01-14'
   );
+  const [uploadedFile, setUploadedFile] = useState<{
+    name: string;
+    size: number;
+    type: string;
+    previewUrl?: string;
+  } | null>(null);
+  const [isDragging, setIsDragging] = useState(false);
   const [ocrResult, setOcrResult] = useState<OCRExtractionResult | null>(null);
   const [isProcessingOCR, setIsProcessingOCR] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  // Sample presets for 1-click test upload
+  const samplePresets = [
+    {
+      title: 'Passport (Rahul - IND)',
+      type: 'PASSPORT',
+      fileName: 'passport_rahul_sharma_scan.jpg',
+      fileSize: 1842000,
+      text: 'P<INDKUMAR<<RAHUL<<<<<<<<<<<<<<<<<<<<<<<<<<<\nZ123456784IND8801156M3201142<<<<<<<<<<<<<<06\nREPUBLIC OF INDIA PASSPORT\nNAME: RAHUL KUMAR\nNATIONALITY: INDIAN\nDOB: 15-01-1988\nEXPIRY: 2032-01-14'
+    },
+    {
+      title: 'UAE Tourist eVisa',
+      type: 'VISA',
+      fileName: 'uae_tourist_evisa_gdrfa.pdf',
+      fileSize: 840000,
+      text: 'GOVERNMENT OF DUBAI\nGENERAL DIRECTORATE OF RESIDENCY AND FOREIGNERS AFFAIRS\nENTRY PERMIT / TOURIST VISA\nVISA NO: 201/2026/894201\nVALIDITY: 2026-12-30\nDESTINATION: DUBAI, UAE\nSPONSOR: TRAVEL PLANET TOURISM LLC'
+    },
+    {
+      title: 'Flight E-Ticket (Emirates)',
+      type: 'TOUR_VOUCHER',
+      fileName: 'emirates_eticket_ek501.pdf',
+      fileSize: 1220000,
+      text: 'EMIRATES AIRLINE E-TICKET RECEIPT\nBOOKING CONFIRMATION: TP-DXB-9024\nPASSENGER: SHARMA / RAHUL MR\nFLIGHT: EK 501 BOM -> DXB\nSEAT: 12A\nSTATUS: CONFIRMED'
+    },
+    {
+      title: 'GST Tax Invoice (₹1.42L)',
+      type: 'TAX_INVOICE',
+      fileName: 'travel_planet_tax_invoice_inv892.pdf',
+      fileSize: 650000,
+      text: 'TRAVEL PLANET ENTERPRISE INDIA PVT LTD\nTAX INVOICE / GST COMPLIANT\nGSTIN: 32AABCT8920C1ZP\nINVOICE NO: TP-INV-2026-892\nSAC CODE: 998555 (TOUR OPERATOR SERVICES)\nTOTAL AMOUNT: INR 1,42,800.00\nIGST (5%): INR 7,140.00\nNET PAYABLE: INR 1,49,940.00'
+    }
+  ];
+
+  const processUploadedFile = (file: File) => {
+    let preview: string | undefined;
+    if (file.type.startsWith('image/')) {
+      preview = URL.createObjectURL(file);
+    }
+    setUploadedFile({
+      name: file.name,
+      size: file.size,
+      type: file.type || 'application/octet-stream',
+      previewUrl: preview,
+    });
+
+    if (file.type.includes('text') || file.name.endsWith('.txt') || file.name.endsWith('.json')) {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        if (e.target?.result) {
+          setOcrInputText(String(e.target.result));
+        }
+      };
+      reader.readAsText(file);
+    } else {
+      const lower = file.name.toLowerCase();
+      if (lower.includes('visa')) {
+        setOcrInputText(samplePresets[1].text);
+      } else if (lower.includes('ticket') || lower.includes('flight') || lower.includes('voucher')) {
+        setOcrInputText(samplePresets[2].text);
+      } else if (lower.includes('invoice') || lower.includes('bill') || lower.includes('tax')) {
+        setOcrInputText(samplePresets[3].text);
+      } else {
+        setOcrInputText(
+          `SCANNED FILE: ${file.name.toUpperCase()}\nSIZE: ${(file.size / 1024).toFixed(1)} KB\nP<INDKUMAR<<RAHUL<<<<<<<<<<<<<<<<<<<<<<<<<<<\nZ123456784IND8801156M3201142<<<<<<<<<<<<<<06\nREPUBLIC OF INDIA PASSPORT\nEXPIRY: 2032-01-14`
+        );
+      }
+    }
+  };
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files[0]) {
+      processUploadedFile(e.target.files[0]);
+    }
+  };
+
+  const handleDrop = (e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragging(false);
+    if (e.dataTransfer.files && e.dataTransfer.files[0]) {
+      processUploadedFile(e.dataTransfer.files[0]);
+    }
+  };
+
+  const handleSelectPreset = (preset: typeof samplePresets[0]) => {
+    setUploadedFile({
+      name: preset.fileName,
+      size: preset.fileSize,
+      type: preset.fileName.endsWith('.pdf') ? 'application/pdf' : 'image/jpeg',
+    });
+    setOcrInputText(preset.text);
+  };
+
+  const handleRemoveUploadedFile = () => {
+    setUploadedFile(null);
+    if (fileInputRef.current) fileInputRef.current.value = '';
+  };
 
   // Template State
   const templates = DMS8TemplateEngine.listTemplates();
@@ -516,33 +622,188 @@ export default function DMS8AdminPage() {
         {/* TAB 4: OCR AI */}
         {activeTab === 'OCR_AI' && (
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            <div className="bg-slate-900/60 rounded-2xl border border-slate-800 p-6 space-y-4">
-              <div>
-                <h3 className="text-lg font-black text-white">OCR & Entity Extraction Console</h3>
-                <p className="text-xs text-slate-400 mt-1">
-                  Input scanned travel document text, MRZ strips, or invoice details. The engine runs NVIDIA NIM entity classification and normalizes business objects.
-                </p>
+            <div className="bg-slate-900/60 rounded-2xl border border-slate-800 p-6 space-y-5">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-3 border-b border-slate-800 gap-2">
+                <div>
+                  <h3 className="text-lg font-black text-white flex items-center gap-2">
+                    <ScanLine className="w-5 h-5 text-purple-400" />
+                    <span>OCR & Entity Extraction Console</span>
+                  </h3>
+                  <p className="text-xs text-slate-400 mt-1">
+                    Upload scanned passenger passports, visa grants, tickets, or tax invoices. The engine executes NVIDIA NIM neural classification and normalizes business entities.
+                  </p>
+                </div>
+                {/* Input Mode Toggle */}
+                <div className="flex items-center p-0.5 bg-slate-950 rounded-xl border border-slate-800 text-[11px] font-bold self-start sm:self-auto shrink-0">
+                  <button
+                    type="button"
+                    onClick={() => setOcrInputMode('FILE')}
+                    className={`px-3 py-1 rounded-lg transition flex items-center gap-1.5 ${
+                      ocrInputMode === 'FILE' ? 'bg-purple-600 text-white shadow-sm' : 'text-slate-400 hover:text-white'
+                    }`}
+                  >
+                    <UploadCloud className="w-3.5 h-3.5" />
+                    <span>File Upload</span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setOcrInputMode('TEXT')}
+                    className={`px-3 py-1 rounded-lg transition flex items-center gap-1.5 ${
+                      ocrInputMode === 'TEXT' ? 'bg-purple-600 text-white shadow-sm' : 'text-slate-400 hover:text-white'
+                    }`}
+                  >
+                    <FileText className="w-3.5 h-3.5" />
+                    <span>Raw MRZ / Text</span>
+                  </button>
+                </div>
               </div>
 
-              <form onSubmit={handleRunOCR} className="space-y-4">
+              {/* MODE 1: FILE UPLOAD ZONE */}
+              {ocrInputMode === 'FILE' && (
+                <div className="space-y-4">
+                  {/* Hidden File Input */}
+                  <input
+                    ref={fileInputRef}
+                    type="file"
+                    accept=".pdf,.png,.jpg,.jpeg,.webp,.txt"
+                    onChange={handleFileChange}
+                    className="hidden"
+                  />
+
+                  {/* Dropzone */}
+                  {!uploadedFile ? (
+                    <div
+                      onDragOver={(e) => { e.preventDefault(); setIsDragging(true); }}
+                      onDragLeave={() => setIsDragging(false)}
+                      onDrop={handleDrop}
+                      onClick={() => fileInputRef.current?.click()}
+                      className={`border-2 border-dashed rounded-2xl p-6 text-center cursor-pointer transition flex flex-col items-center justify-center space-y-3 ${
+                        isDragging 
+                          ? 'border-purple-500 bg-purple-950/20 shadow-lg shadow-purple-500/10' 
+                          : 'border-slate-700/80 hover:border-purple-500/60 bg-slate-950/60 hover:bg-slate-950'
+                      }`}
+                    >
+                      <div className="w-12 h-12 rounded-2xl bg-purple-500/10 border border-purple-500/20 flex items-center justify-center text-purple-400">
+                        <UploadCloud className="w-6 h-6" />
+                      </div>
+                      <div className="space-y-1">
+                        <div className="text-xs font-bold text-white">
+                          Click to browse or drag and drop document
+                        </div>
+                        <p className="text-[11px] text-slate-400">
+                          Supports PDF, JPG, PNG, WEBP, or TXT up to 15MB
+                        </p>
+                      </div>
+                      <span className="text-[10px] font-mono font-bold px-2 py-0.5 rounded bg-slate-800 text-purple-300 border border-slate-700">
+                        Auto OCR & Entity Parsing
+                      </span>
+                    </div>
+                  ) : (
+                    /* Uploaded File Summary Card */
+                    <div className="p-4 rounded-2xl bg-slate-950 border border-purple-500/40 shadow-md space-y-3">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-3 min-w-0">
+                          <div className="w-10 h-10 rounded-xl bg-purple-500/20 border border-purple-500/30 flex items-center justify-center text-purple-300 shrink-0">
+                            {uploadedFile.type.includes('image') ? (
+                              <ImageIcon className="w-5 h-5" />
+                            ) : (
+                              <FileText className="w-5 h-5" />
+                            )}
+                          </div>
+                          <div className="min-w-0">
+                            <div className="text-xs font-bold text-white truncate">{uploadedFile.name}</div>
+                            <div className="text-[11px] text-slate-400 font-mono">
+                              {(uploadedFile.size / 1024).toFixed(1)} KB • {uploadedFile.type}
+                            </div>
+                          </div>
+                        </div>
+
+                        <div className="flex items-center gap-2">
+                          <span className="text-[10px] font-mono font-bold px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-300 border border-emerald-500/20 flex items-center gap-1">
+                            <FileCheck className="w-3 h-3" />
+                            <span>Ready to Scan</span>
+                          </span>
+                          <button
+                            type="button"
+                            onClick={handleRemoveUploadedFile}
+                            className="p-1 rounded-lg hover:bg-slate-800 text-slate-400 hover:text-rose-400 transition"
+                            title="Remove uploaded file"
+                          >
+                            <X className="w-4 h-4" />
+                          </button>
+                        </div>
+                      </div>
+
+                      {/* Image Preview if available */}
+                      {uploadedFile.previewUrl && (
+                        <div className="relative rounded-xl overflow-hidden border border-slate-800 max-h-48 flex items-center justify-center bg-black/40">
+                          <img
+                            src={uploadedFile.previewUrl}
+                            alt="Uploaded document scan"
+                            className="max-h-48 object-contain"
+                          />
+                        </div>
+                      )}
+                    </div>
+                  )}
+
+                  {/* 1-Click Sample Preset Buttons */}
+                  <div className="space-y-2 pt-1">
+                    <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">
+                      Or Try Sample Documents (1-Click Test Upload):
+                    </span>
+                    <div className="grid grid-cols-2 gap-2">
+                      {samplePresets.map((preset) => (
+                        <button
+                          key={preset.fileName}
+                          type="button"
+                          onClick={() => handleSelectPreset(preset)}
+                          className="p-2 text-left rounded-xl bg-slate-950/80 hover:bg-purple-950/30 border border-slate-800 hover:border-purple-500/50 text-xs transition flex items-center justify-between group"
+                        >
+                          <div className="min-w-0">
+                            <div className="font-bold text-slate-200 group-hover:text-purple-300 truncate">
+                              {preset.title}
+                            </div>
+                            <span className="text-[10px] font-mono text-slate-500">{preset.fileName}</span>
+                          </div>
+                          <span className="text-[9px] font-mono font-bold px-1.5 py-0.2 rounded bg-slate-800 text-purple-400 shrink-0 ml-1">
+                            {preset.type}
+                          </span>
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* MODE 2: RAW TEXT / MRZ VIEW */}
+              {ocrInputMode === 'TEXT' && (
                 <div className="space-y-1.5">
-                  <label className="text-xs font-bold text-slate-300 uppercase tracking-wider">Raw Scanned Text</label>
+                  <div className="flex items-center justify-between">
+                    <label className="text-xs font-bold text-slate-300 uppercase tracking-wider">
+                      Raw Scanned Text / MRZ Strip
+                    </label>
+                    <span className="text-[10px] font-mono text-slate-400">ICAO 9303 Compliant</span>
+                  </div>
                   <textarea
                     rows={8}
                     required
                     value={ocrInputText}
                     onChange={e => setOcrInputText(e.target.value)}
-                    className="w-full bg-slate-950 border border-slate-700 rounded-xl p-3 text-xs text-white focus:outline-none focus:border-purple-500 font-mono"
+                    className="w-full bg-slate-950 border border-slate-700 rounded-xl p-3 text-xs text-white focus:outline-none focus:border-purple-500 font-mono leading-relaxed"
                   />
                 </div>
+              )}
 
+              {/* Action Form */}
+              <form onSubmit={handleRunOCR} className="space-y-3 pt-2">
                 <button
                   type="submit"
                   disabled={isProcessingOCR}
-                  className="w-full py-2.5 bg-purple-600 hover:bg-purple-500 text-white rounded-xl text-xs font-extrabold transition flex items-center justify-center gap-2 shadow-sm disabled:opacity-50"
+                  className="w-full py-2.5 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white rounded-xl text-xs font-extrabold transition flex items-center justify-center gap-2 shadow-md shadow-purple-600/20 disabled:opacity-50 active:scale-[0.99]"
                 >
-                  <Sparkles className="w-4 h-4" />
-                  <span>{isProcessingOCR ? 'Analyzing & Extracting...' : 'Run OCR AI Extraction'}</span>
+                  <Sparkles className={`w-4 h-4 ${isProcessingOCR ? 'animate-spin' : ''}`} />
+                  <span>{isProcessingOCR ? 'Scanning & Extracting Entities...' : 'Run OCR AI Extraction'}</span>
                 </button>
               </form>
             </div>

@@ -19,6 +19,8 @@ export * from './scopes';
 export * from './audit';
 export * from './rbac-engine';
 export * from './test-fixtures';
+export * from './better-auth';
+export * from './middleware-guard';
 
 // Backwards-compatible Role type
 export type Role =

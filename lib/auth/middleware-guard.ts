@@ -11,6 +11,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { AuthorizationEngine, AuthUser } from './rbac-engine';
 import { ResourceScopeTarget } from './scopes';
 import { TestFixturesManager } from './test-fixtures';
+import { getClerkAuthUser } from './clerk-auth';
 
 export interface GuardOptions {
   permission: string;
@@ -22,18 +23,37 @@ export class RouteGuard {
    * Route protection mapping for application route prefixes
    */
   public static readonly PROTECTED_ROUTE_MAP: Record<string, { permission: string; allowedRoles: string[] }> = {
-    '/admin': { permission: 'dashboard.view', allowedRoles: ['PLATFORM_SUPER_ADMIN', 'ADMIN'] },
-    '/admin/users': { permission: 'users.view', allowedRoles: ['PLATFORM_SUPER_ADMIN', 'ADMIN'] },
+    '/admin': { permission: 'dashboard.view', allowedRoles: ['PLATFORM_SUPER_ADMIN', 'ADMIN', 'ORGANIZATION_ADMIN', 'SAAS_ADMIN'] },
+    '/admin/users': { permission: 'users.view', allowedRoles: ['PLATFORM_SUPER_ADMIN', 'ADMIN', 'ORGANIZATION_ADMIN'] },
     '/admin/roles': { permission: 'roles.view', allowedRoles: ['PLATFORM_SUPER_ADMIN', 'ADMIN'] },
-    '/admin/audit': { permission: 'audit.view', allowedRoles: ['PLATFORM_SUPER_ADMIN', 'ADMIN', 'FINANCE_MANAGER'] },
-    '/vendor': { permission: 'inventory.view', allowedRoles: ['PLATFORM_SUPER_ADMIN', 'VENDOR_ADMIN', 'VENDOR_OPERATOR'] },
-    '/agent': { permission: 'bookings.create', allowedRoles: ['PLATFORM_SUPER_ADMIN', 'ADMIN', 'TRAVEL_AGENT', 'SALES_MANAGER', 'PARTNER'] },
-    '/finance': { permission: 'finance.view', allowedRoles: ['PLATFORM_SUPER_ADMIN', 'ADMIN', 'FINANCE_MANAGER', 'ACCOUNTANT'] },
-    '/operations': { permission: 'trips.manage', allowedRoles: ['PLATFORM_SUPER_ADMIN', 'ADMIN', 'OPERATIONS_MANAGER'] },
+    '/admin/audit': { permission: 'audit.view', allowedRoles: ['PLATFORM_SUPER_ADMIN', 'ADMIN', 'SECURITY_ADMIN', 'FINANCE_MANAGER'] },
+    '/vendor': { permission: 'inventory.view', allowedRoles: ['PLATFORM_SUPER_ADMIN', 'VENDOR_ADMIN', 'VENDOR_OPERATOR', 'VENDOR_MANAGER', 'PARTNER'] },
+    '/partner': { permission: 'inventory.view', allowedRoles: ['PLATFORM_SUPER_ADMIN', 'PARTNER', 'PARTNER_ADMIN', 'PARTNER_AGENT', 'VENDOR_ADMIN', 'VENDOR_MANAGER'] },
+    '/account': { permission: 'bookings.view', allowedRoles: ['CUSTOMER', 'CORPORATE_TRAVELER', 'PLATFORM_SUPER_ADMIN', 'ADMIN'] },
+    '/agent': { permission: 'bookings.create', allowedRoles: ['PLATFORM_SUPER_ADMIN', 'ADMIN', 'TRAVEL_AGENT', 'SALES_MANAGER', 'SALES_AGENT', 'PARTNER'] },
+    '/finance': { permission: 'finance.view', allowedRoles: ['PLATFORM_SUPER_ADMIN', 'ADMIN', 'FINANCE_MANAGER', 'FINANCE_EXECUTIVE', 'ACCOUNTANT'] },
+    '/operations': { permission: 'trips.manage', allowedRoles: ['PLATFORM_SUPER_ADMIN', 'ADMIN', 'OPERATIONS_MANAGER', 'OPERATIONS_AGENT'] },
   };
 
   /**
-   * Extract AuthUser from incoming request headers or development bearer token
+   * Resolve AuthUser asynchronously: checks Clerk authentication first,
+   * then falls back to headers, tokens, and test fixtures.
+   */
+  public static async resolveUserFromRequest(req: NextRequest): Promise<AuthUser | null> {
+    try {
+      const clerkUser = await getClerkAuthUser(req);
+      if (clerkUser) {
+        return clerkUser;
+      }
+    } catch {
+      // Graceful fallback if Clerk authentication encounters an error
+    }
+
+    return this.extractUserFromRequest(req);
+  }
+
+  /**
+   * Extract AuthUser from incoming request headers or development bearer token (synchronous)
    */
   public static extractUserFromRequest(req: NextRequest): AuthUser | null {
     // 1. Check custom authorization headers (e.g. x-user-id or bearer token)
@@ -43,6 +63,16 @@ export class RouteGuard {
 
     // Development/demo fallback accounts
     const testAccounts = TestFixturesManager.getTestAccounts();
+
+    // Check development cookie fallback
+    const devUserIdCookie = req.cookies?.get ? req.cookies.get('tp_dev_user_id')?.value : undefined;
+    const devUserEmailCookie = req.cookies?.get ? req.cookies.get('tp_dev_user_email')?.value : undefined;
+    if (devUserIdCookie || devUserEmailCookie) {
+      const match = testAccounts.find(
+        a => a.id === devUserIdCookie || a.email === devUserEmailCookie
+      );
+      if (match) return match;
+    }
 
     if (userIdHeader) {
       const match = testAccounts.find(a => a.id === userIdHeader || a.email === userIdHeader);
@@ -72,7 +102,7 @@ export class RouteGuard {
     getResourceTarget?: (req: NextRequest) => ResourceScopeTarget | undefined
   ) {
     return async (req: NextRequest, context?: any): Promise<NextResponse> => {
-      const user = this.extractUserFromRequest(req);
+      const user = await this.resolveUserFromRequest(req);
 
       if (!user) {
         return NextResponse.json(

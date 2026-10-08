@@ -8,12 +8,15 @@
 export type DataScope =
   | 'GLOBAL'
   | 'ORGANIZATION'
+  | 'REGION'
+  | 'BRANCH'
   | 'WORKSPACE'
   | 'TEAM'
   | 'ASSIGNED'
   | 'OWN_RECORDS'
   | 'OWN_CUSTOMERS'
   | 'OWN_VENDOR'
+  | 'CUSTOMER_GROUP'
   | 'READ_ONLY'
   | 'NONE';
 
@@ -99,6 +102,18 @@ export class ScopeEvaluator {
           (!resource.workspaceId || userContext.workspaceId === resource.workspaceId)
         );
 
+      case 'BRANCH':
+        return !!userContext.organizationId && userContext.organizationId === resource.organizationId;
+
+      case 'REGION':
+        return !!userContext.organizationId && userContext.organizationId === resource.organizationId;
+
+      case 'CUSTOMER_GROUP':
+        return (
+          !!userContext.userId &&
+          (userContext.userId === resource.ownerUserId || userContext.userId === resource.assignedUserId)
+        );
+
       default:
         return false;
     }
@@ -109,12 +124,15 @@ export class ScopeEvaluator {
    */
   public static getBroaderScope(scopeA: DataScope, scopeB: DataScope): DataScope {
     const scopeRank: Record<DataScope, number> = {
-      GLOBAL: 10,
-      ORGANIZATION: 9,
+      GLOBAL: 12,
+      ORGANIZATION: 11,
+      REGION: 10,
+      BRANCH: 9,
       WORKSPACE: 8,
       TEAM: 7,
       OWN_VENDOR: 6,
       OWN_CUSTOMERS: 5,
+      CUSTOMER_GROUP: 5,
       ASSIGNED: 4,
       OWN_RECORDS: 3,
       READ_ONLY: 2,

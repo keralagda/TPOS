@@ -20,7 +20,7 @@
           "version": "1.2.0",
           "status": "APPROVED",
           "derivation_method": "DECLARATIVE",
-          "confidence": 1.0,
+          "confidence": 1,
           "source_file_ref": "03_VOYAGE8_TRAVEL_BACKBONE.md"
         },
         {
@@ -31,7 +31,7 @@
           "version": "1.0.0",
           "status": "APPROVED",
           "derivation_method": "DECLARATIVE",
-          "confidence": 1.0,
+          "confidence": 1,
           "source_file_ref": "02_PROJECT_CONSTITUTION.md"
         }
       ]
@@ -48,7 +48,7 @@
           "version": "1.2.0",
           "status": "APPROVED",
           "derivation_method": "DECLARATIVE",
-          "confidence": 1.0,
+          "confidence": 1,
           "source_file_ref": "15_IMPLEMENTATION_PHASES.md"
         },
         {
@@ -59,7 +59,7 @@
           "version": "1.2.0",
           "status": "APPROVED",
           "derivation_method": "DECLARATIVE",
-          "confidence": 1.0,
+          "confidence": 1,
           "source_file_ref": "07_ADMIN_OS.md"
         }
       ]
@@ -76,7 +76,7 @@
           "version": "1.0.0",
           "status": "ACTIVE",
           "derivation_method": "SEEDED",
-          "confidence": 1.0,
+          "confidence": 1,
           "source_file_ref": "20_SEED_DATA.md"
         },
         {
@@ -87,7 +87,7 @@
           "version": "1.0.0",
           "status": "ACTIVE",
           "derivation_method": "SEEDED",
-          "confidence": 1.0,
+          "confidence": 1,
           "source_file_ref": "20_SEED_DATA.md"
         },
         {
@@ -98,7 +98,7 @@
           "version": "1.0.0",
           "status": "ACTIVE",
           "derivation_method": "SEEDED",
-          "confidence": 1.0,
+          "confidence": 1,
           "source_file_ref": "20_SEED_DATA.md"
         },
         {
@@ -109,7 +109,7 @@
           "version": "1.0.0",
           "status": "ACTIVE",
           "derivation_method": "SEEDED",
-          "confidence": 1.0,
+          "confidence": 1,
           "source_file_ref": "20_SEED_DATA.md"
         },
         {
@@ -120,7 +120,7 @@
           "version": "1.0.0",
           "status": "ACTIVE",
           "derivation_method": "SEEDED",
-          "confidence": 1.0,
+          "confidence": 1,
           "source_file_ref": "20_SEED_DATA.md"
         },
         {
@@ -131,7 +131,7 @@
           "version": "1.0.0",
           "status": "ACTIVE",
           "derivation_method": "SEEDED",
-          "confidence": 1.0,
+          "confidence": 1,
           "source_file_ref": "20_SEED_DATA.md"
         }
       ]
@@ -148,7 +148,7 @@
           "version": "1.2.0",
           "status": "APPROVED",
           "derivation_method": "DECLARATIVE",
-          "confidence": 1.0,
+          "confidence": 1,
           "source_file_ref": "08_CRM_ERP_FINANCE.md"
         },
         {
@@ -159,7 +159,7 @@
           "version": "1.2.0",
           "status": "APPROVED",
           "derivation_method": "DECLARATIVE",
-          "confidence": 1.0,
+          "confidence": 1,
           "source_file_ref": "08_CRM_ERP_FINANCE.md"
         }
       ]
@@ -198,7 +198,7 @@
           "version": "1.0.0",
           "status": "NOT_CONFIGURED",
           "derivation_method": "SPECIFIED",
-          "confidence": 1.0,
+          "confidence": 1,
           "source_file_ref": "11_PAYMENT_HUB.md"
         },
         {
@@ -231,7 +231,7 @@
           "version": "1.0.0",
           "status": "DEMO",
           "derivation_method": "SPECIFIED",
-          "confidence": 1.0,
+          "confidence": 1,
           "source_file_ref": "10_INITIAL_CONNECTORS.md"
         },
         {
@@ -242,7 +242,7 @@
           "version": "1.0.0",
           "status": "ACTIVE",
           "derivation_method": "DECLARATIVE",
-          "confidence": 1.0,
+          "confidence": 1,
           "source_file_ref": "09_CONNECT_HUB.md"
         },
         {
@@ -253,7 +253,7 @@
           "version": "1.0.0",
           "status": "ACTIVE",
           "derivation_method": "DECLARATIVE",
-          "confidence": 1.0,
+          "confidence": 1,
           "source_file_ref": "09_CONNECT_HUB.md"
         }
       ]
@@ -270,7 +270,7 @@
           "version": "1.0.0",
           "status": "ACTIVE",
           "derivation_method": "SPECIFIED",
-          "confidence": 1.0,
+          "confidence": 1,
           "source_file_ref": "12_AI_ASSISTANT.md"
         },
         {
@@ -281,7 +281,7 @@
           "version": "1.0.0",
           "status": "ACTIVE",
           "derivation_method": "SPECIFIED",
-          "confidence": 1.0,
+          "confidence": 1,
           "source_file_ref": "12_AI_ASSISTANT.md"
         },
         {
@@ -292,7 +292,7 @@
           "version": "1.0.0",
           "status": "ACTIVE",
           "derivation_method": "SPECIFIED",
-          "confidence": 1.0,
+          "confidence": 1,
           "source_file_ref": "12_AI_ASSISTANT.md"
         },
         {
@@ -303,7 +303,7 @@
           "version": "1.0.0",
           "status": "ACTIVE",
           "derivation_method": "SPECIFIED",
-          "confidence": 1.0,
+          "confidence": 1,
           "source_file_ref": "12_AI_ASSISTANT.md"
         },
         {
@@ -314,7 +314,7 @@
           "version": "1.0.0",
           "status": "ACTIVE",
           "derivation_method": "SPECIFIED",
-          "confidence": 1.0,
+          "confidence": 1,
           "source_file_ref": "12_AI_ASSISTANT.md"
         },
         {
@@ -325,7 +325,7 @@
           "version": "1.0.0",
           "status": "ACTIVE",
           "derivation_method": "SPECIFIED",
-          "confidence": 1.0,
+          "confidence": 1,
           "source_file_ref": "12_AI_ASSISTANT.md"
         },
         {
@@ -336,7 +336,7 @@
           "version": "1.0.0",
           "status": "ACTIVE",
           "derivation_method": "SPECIFIED",
-          "confidence": 1.0,
+          "confidence": 1,
           "source_file_ref": "12_AI_ASSISTANT.md"
         },
         {
@@ -347,7 +347,7 @@
           "version": "1.0.0",
           "status": "ACTIVE",
           "derivation_method": "SPECIFIED",
-          "confidence": 1.0,
+          "confidence": 1,
           "source_file_ref": "12_AI_ASSISTANT.md"
         },
         {
@@ -358,7 +358,7 @@
           "version": "1.0.0",
           "status": "ACTIVE",
           "derivation_method": "SPECIFIED",
-          "confidence": 1.0,
+          "confidence": 1,
           "source_file_ref": "12_AI_ASSISTANT.md"
         },
         {
@@ -369,7 +369,7 @@
           "version": "1.0.0",
           "status": "ACTIVE",
           "derivation_method": "SPECIFIED",
-          "confidence": 1.0,
+          "confidence": 1,
           "source_file_ref": "12_AI_ASSISTANT.md"
         },
         {
@@ -380,7 +380,7 @@
           "version": "1.0.0",
           "status": "ACTIVE",
           "derivation_method": "SPECIFIED",
-          "confidence": 1.0,
+          "confidence": 1,
           "source_file_ref": "12_AI_ASSISTANT.md"
         },
         {
@@ -391,7 +391,7 @@
           "version": "1.0.0",
           "status": "ACTIVE",
           "derivation_method": "SPECIFIED",
-          "confidence": 1.0,
+          "confidence": 1,
           "source_file_ref": "12_AI_ASSISTANT.md"
         },
         {
@@ -402,7 +402,7 @@
           "version": "1.0.0",
           "status": "ACTIVE",
           "derivation_method": "SPECIFIED",
-          "confidence": 1.0,
+          "confidence": 1,
           "source_file_ref": "12_AI_ASSISTANT.md"
         },
         {
@@ -413,7 +413,7 @@
           "version": "1.0.0",
           "status": "ACTIVE",
           "derivation_method": "SPECIFIED",
-          "confidence": 1.0,
+          "confidence": 1,
           "source_file_ref": "12_AI_ASSISTANT.md"
         },
         {
@@ -424,7 +424,7 @@
           "version": "1.0.0",
           "status": "ACTIVE",
           "derivation_method": "DECLARATIVE",
-          "confidence": 1.0,
+          "confidence": 1,
           "source_file_ref": "03_VOYAGE8_TRAVEL_BACKBONE.md"
         }
       ]
@@ -441,7 +441,7 @@
           "version": "1.0.0",
           "status": "ACTIVE",
           "derivation_method": "DECLARATIVE",
-          "confidence": 1.0,
+          "confidence": 1,
           "source_file_ref": "02_PROJECT_CONSTITUTION.md"
         },
         {
@@ -452,7 +452,7 @@
           "version": "1.0.0",
           "status": "ACTIVE",
           "derivation_method": "DECLARATIVE",
-          "confidence": 1.0,
+          "confidence": 1,
           "source_file_ref": "08_CRM_ERP_FINANCE.md"
         },
         {
@@ -463,7 +463,7 @@
           "version": "1.0.0",
           "status": "ACTIVE",
           "derivation_method": "DECLARATIVE",
-          "confidence": 1.0,
+          "confidence": 1,
           "source_file_ref": "08_CRM_ERP_FINANCE.md"
         },
         {
@@ -474,7 +474,7 @@
           "version": "1.0.0",
           "status": "ACTIVE",
           "derivation_method": "DECLARATIVE",
-          "confidence": 1.0,
+          "confidence": 1,
           "source_file_ref": "02_PROJECT_CONSTITUTION.md"
         }
       ]
@@ -491,7 +491,7 @@
           "version": "1.0.0",
           "status": "APPROVED",
           "derivation_method": "DECLARATIVE",
-          "confidence": 1.0,
+          "confidence": 1,
           "source_file_ref": "16_QA_GTM.md"
         },
         {
@@ -502,7 +502,7 @@
           "version": "1.0.0",
           "status": "APPROVED",
           "derivation_method": "DECLARATIVE",
-          "confidence": 1.0,
+          "confidence": 1,
           "source_file_ref": "08_CRM_ERP_FINANCE.md"
         },
         {
@@ -513,7 +513,7 @@
           "version": "1.0.0",
           "status": "APPROVED",
           "derivation_method": "DECLARATIVE",
-          "confidence": 1.0,
+          "confidence": 1,
           "source_file_ref": "12_AI_ASSISTANT.md"
         }
       ]
@@ -530,7 +530,7 @@
           "version": "1.0.0",
           "status": "ACTIVE",
           "derivation_method": "DECLARATIVE",
-          "confidence": 1.0,
+          "confidence": 1,
           "source_file_ref": "21_OPERATIONS_RUNBOOK.md"
         },
         {
@@ -541,7 +541,7 @@
           "version": "1.0.0",
           "status": "ACTIVE",
           "derivation_method": "DECLARATIVE",
-          "confidence": 1.0,
+          "confidence": 1,
           "source_file_ref": "21_OPERATIONS_RUNBOOK.md"
         },
         {
@@ -552,7 +552,7 @@
           "version": "1.0.0",
           "status": "ACTIVE",
           "derivation_method": "DECLARATIVE",
-          "confidence": 1.0,
+          "confidence": 1,
           "source_file_ref": "21_OPERATIONS_RUNBOOK.md"
         }
       ]
@@ -569,7 +569,7 @@
           "version": "2.0.0",
           "status": "APPROVED",
           "derivation_method": "DECLARATIVE",
-          "confidence": 1.0,
+          "confidence": 1,
           "source_file_ref": "16_SOCIAL8_TRAVEL_GRAPH.md"
         },
         {
@@ -580,7 +580,7 @@
           "version": "2.0.0",
           "status": "APPROVED",
           "derivation_method": "DECLARATIVE",
-          "confidence": 1.0,
+          "confidence": 1,
           "source_file_ref": "16_SOCIAL8_TRAVEL_GRAPH.md"
         }
       ]
@@ -597,7 +597,7 @@
           "version": "2.0.0",
           "status": "APPROVED",
           "derivation_method": "DECLARATIVE",
-          "confidence": 1.0,
+          "confidence": 1,
           "source_file_ref": "17_GEM8_DISCOVERY.md"
         },
         {
@@ -608,7 +608,7 @@
           "version": "2.0.0",
           "status": "APPROVED",
           "derivation_method": "DECLARATIVE",
-          "confidence": 1.0,
+          "confidence": 1,
           "source_file_ref": "17_GEM8_DISCOVERY.md"
         }
       ]
@@ -625,7 +625,7 @@
           "version": "2.0.0",
           "status": "APPROVED",
           "derivation_method": "DECLARATIVE",
-          "confidence": 1.0,
+          "confidence": 1,
           "source_file_ref": "19_VOICE_NAVIGATION_OPERATIONS_SEARCH.md"
         },
         {
@@ -636,7 +636,7 @@
           "version": "2.0.0",
           "status": "APPROVED",
           "derivation_method": "DECLARATIVE",
-          "confidence": 1.0,
+          "confidence": 1,
           "source_file_ref": "19_VOICE_NAVIGATION_OPERATIONS_SEARCH.md"
         }
       ]
@@ -653,7 +653,7 @@
           "version": "2.0.0",
           "status": "APPROVED",
           "derivation_method": "DECLARATIVE",
-          "confidence": 1.0,
+          "confidence": 1,
           "source_file_ref": "15_DMS_DOCUMENT_TEMPLATE_ENGINE.md"
         },
         {
@@ -664,7 +664,7 @@
           "version": "2.0.0",
           "status": "APPROVED",
           "derivation_method": "DECLARATIVE",
-          "confidence": 1.0,
+          "confidence": 1,
           "source_file_ref": "15_DMS_DOCUMENT_TEMPLATE_ENGINE.md"
         }
       ]
@@ -681,7 +681,7 @@
           "version": "2.0.0",
           "status": "APPROVED",
           "derivation_method": "DECLARATIVE",
-          "confidence": 1.0,
+          "confidence": 1,
           "source_file_ref": "31_FEATURE_FLAGS.md"
         },
         {
@@ -692,7 +692,7 @@
           "version": "2.0.0",
           "status": "APPROVED",
           "derivation_method": "DECLARATIVE",
-          "confidence": 1.0,
+          "confidence": 1,
           "source_file_ref": "33_OPERATION_MODE_ROLLOVER.md"
         },
         {
@@ -703,7 +703,7 @@
           "version": "2.0.0",
           "status": "APPROVED",
           "derivation_method": "DECLARATIVE",
-          "confidence": 1.0,
+          "confidence": 1,
           "source_file_ref": "32_TIMED_SCHEDULE_OTA_ROLLOVER.md"
         }
       ]
@@ -720,7 +720,7 @@
           "version": "2.0.0",
           "status": "APPROVED",
           "derivation_method": "DECLARATIVE",
-          "confidence": 1.0,
+          "confidence": 1,
           "source_file_ref": "09_IDEA_DISCOVERY_ENGINE.md"
         },
         {
@@ -731,8 +731,103 @@
           "version": "2.0.0",
           "status": "APPROVED",
           "derivation_method": "DECLARATIVE",
-          "confidence": 1.0,
+          "confidence": 1,
           "source_file_ref": "09_IDEA_DISCOVERY_ENGINE.md"
+        }
+      ]
+    },
+    {
+      "id": "TP-KNOWLEDGE8-REGISTRY",
+      "name": "Knowledge8 / Temporal Price & Graph Intelligence",
+      "objects": [
+        {
+          "registry_id": "TP-KNOWLEDGE8-REGISTRY",
+          "object_id": "OBJ-K8-001",
+          "canonical_name": "TemporalPriceEngine",
+          "type": "ENGINE",
+          "version": "1.0.0",
+          "status": "APPROVED",
+          "derivation_method": "DECLARATIVE",
+          "confidence": 1,
+          "source_file_ref": "lib/knowledge/temporal-price-engine.ts"
+        },
+        {
+          "registry_id": "TP-KNOWLEDGE8-REGISTRY",
+          "object_id": "OBJ-K8-002",
+          "canonical_name": "WhatsAppKnowledgeConnector",
+          "type": "CONNECTOR",
+          "version": "1.0.0",
+          "status": "APPROVED",
+          "derivation_method": "DECLARATIVE",
+          "confidence": 1,
+          "source_file_ref": "lib/knowledge/whatsapp-connector.ts"
+        },
+        {
+          "registry_id": "TP-KNOWLEDGE8-REGISTRY",
+          "object_id": "OBJ-K8-003",
+          "canonical_name": "AIKnowledgeAssistant",
+          "type": "AI_AGENT",
+          "version": "1.0.0",
+          "status": "APPROVED",
+          "derivation_method": "DECLARATIVE",
+          "confidence": 1,
+          "source_file_ref": "lib/knowledge/ai-knowledge-assistant.ts"
+        }
+      ]
+    },
+    {
+      "id": "TP-COMPLIANCE8-REGISTRY",
+      "name": "Compliance8 / Evidence Verification & Double-Approval Gates",
+      "objects": [
+        {
+          "registry_id": "TP-COMPLIANCE8-REGISTRY",
+          "object_id": "OBJ-C8-001",
+          "canonical_name": "DoubleApprovalEngine",
+          "type": "ENGINE",
+          "version": "1.0.0",
+          "status": "APPROVED",
+          "derivation_method": "DECLARATIVE",
+          "confidence": 1,
+          "source_file_ref": "lib/compliance/compliance8-engine.ts"
+        },
+        {
+          "registry_id": "TP-COMPLIANCE8-REGISTRY",
+          "object_id": "OBJ-C8-002",
+          "canonical_name": "GranularJourneyGates",
+          "type": "RULE",
+          "version": "1.0.0",
+          "status": "APPROVED",
+          "derivation_method": "DECLARATIVE",
+          "confidence": 1,
+          "source_file_ref": "lib/compliance/compliance8-engine.ts"
+        }
+      ]
+    },
+    {
+      "id": "TP-PACKAGE8-REGISTRY",
+      "name": "Package8 / Hyper Configurator & Package Lifecycle",
+      "objects": [
+        {
+          "registry_id": "TP-PACKAGE8-REGISTRY",
+          "object_id": "OBJ-PKG8-001",
+          "canonical_name": "Package8Manager",
+          "type": "ENGINE",
+          "version": "1.0.0",
+          "status": "APPROVED",
+          "derivation_method": "DECLARATIVE",
+          "confidence": 1,
+          "source_file_ref": "lib/packages/package8-manager.ts"
+        },
+        {
+          "registry_id": "TP-PACKAGE8-REGISTRY",
+          "object_id": "OBJ-PKG8-002",
+          "canonical_name": "ImmutableSnapshotSealer",
+          "type": "SECURITY_RULE",
+          "version": "1.0.0",
+          "status": "APPROVED",
+          "derivation_method": "DECLARATIVE",
+          "confidence": 1,
+          "source_file_ref": "lib/packages/package8-manager.ts"
         }
       ]
     }

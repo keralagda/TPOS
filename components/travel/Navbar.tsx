@@ -1,9 +1,10 @@
 'use client';
 
 import React from 'react';
-import { Globe, Search, Briefcase, Users } from 'lucide-react';
+import { Globe, Users } from 'lucide-react';
 import Link from 'next/link';
 import { LanguageSwitcher } from '@/components/travel/LanguageSwitcher';
+import { SignInButton, SignUpButton, SignedIn, SignedOut, UserButton } from '@clerk/nextjs';
 
 export const Navbar: React.FC = () => {
   return (
@@ -35,13 +36,29 @@ export const Navbar: React.FC = () => {
         {/* Actions */}
         <div className="flex items-center space-x-3 sm:space-x-3.5">
           <LanguageSwitcher />
-          <Link href="/trips" className="text-sm font-semibold text-slate-700 hover:text-sky-600 transition flex items-center gap-1.5">
-            <Briefcase className="w-4 h-4" />
-            <span className="hidden sm:inline">My Trips</span>
-          </Link>
-          <Link href="#ai-planner" data-tour="ai-planner" className="bg-sky-600 hover:bg-sky-700 text-white font-semibold text-xs sm:text-sm px-4 sm:px-5 py-2 sm:py-2.5 rounded-full shadow-sm hover:shadow transition">
-            Plan Trip
-          </Link>
+
+          <SignedOut>
+            <SignInButton mode="modal">
+              <button className="text-sm font-semibold text-slate-700 hover:text-sky-600 transition">
+                Sign In
+              </button>
+            </SignInButton>
+            <SignUpButton mode="modal">
+              <button className="bg-sky-600 hover:bg-sky-700 text-white font-semibold text-xs sm:text-sm px-3.5 sm:px-4 py-2 rounded-full shadow-sm hover:shadow transition">
+                Sign Up
+              </button>
+            </SignUpButton>
+          </SignedOut>
+
+          <SignedIn>
+            <Link
+              href="/admin/dashboard"
+              className="text-xs font-semibold text-slate-600 hover:text-sky-600 transition mr-2 hidden sm:inline-block"
+            >
+              Workspace
+            </Link>
+            <UserButton afterSignOutUrl="/" />
+          </SignedIn>
         </div>
       </div>
     </header>

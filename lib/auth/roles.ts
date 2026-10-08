@@ -302,7 +302,7 @@ export const SYSTEM_ROLES: Record<string, SystemRoleDefinition> = {
   CUSTOMER: {
     code: 'CUSTOMER',
     name: 'B2C Traveler / Consumer',
-    description: 'Standard retail consumer access: view personal bookings, trips, profile, and interact with AI travel planner.',
+    description: 'Standard retail consumer access: view personal bookings, trips, profile, documents, and interact with AI travel planner.',
     defaultScope: 'OWN_RECORDS',
     isSystem: true,
     permissions: [
@@ -313,6 +313,28 @@ export const SYSTEM_ROLES: Record<string, SystemRoleDefinition> = {
       'payments.create',
       'ai.chat',
       'content.view',
+      'documents.view', 'documents.upload',
+      'compliance.view', 'compliance.approve',
+      'profile.view', 'profile.update',
+    ],
+  },
+
+  CORPORATE_TRAVELER: {
+    code: 'CORPORATE_TRAVELER',
+    name: 'Corporate Business Traveler',
+    description: 'Business travel consumer with policy compliance, corporate approval workflows, and centralized invoicing.',
+    defaultScope: 'OWN_RECORDS',
+    isSystem: true,
+    permissions: [
+      'bookings.view', 'bookings.create',
+      'trips.view',
+      'itineraries.view', 'itineraries.create',
+      'offers.view',
+      'payments.create',
+      'ai.chat',
+      'content.view',
+      'documents.view', 'documents.upload',
+      'profile.view', 'profile.update',
     ],
   },
 
@@ -332,6 +354,267 @@ export const SYSTEM_ROLES: Record<string, SystemRoleDefinition> = {
       'offers.view',
       'payments.create',
       'ai.chat',
+    ],
+  },
+
+  PLATFORM_ADMIN: {
+    code: 'PLATFORM_ADMIN',
+    name: 'Platform Administrator',
+    description: 'Platform infrastructure administration, tenant policy enforcement, and platform service monitoring.',
+    defaultScope: 'GLOBAL',
+    isSystem: true,
+    permissions: ['*'],
+  },
+
+  SAAS_ADMIN: {
+    code: 'SAAS_ADMIN',
+    name: 'SaaS Multi-Tenant Administrator',
+    description: 'Tenant billing, subscription quotas, feature flag toggles, and tenant isolation policies.',
+    defaultScope: 'GLOBAL',
+    isSystem: true,
+    permissions: [
+      'dashboard.view', 'users.view', 'roles.view', 'settings.view', 'settings.manage',
+      'audit.view', 'analytics.view',
+    ],
+  },
+
+  SECURITY_ADMIN: {
+    code: 'SECURITY_ADMIN',
+    name: 'Security & Compliance Officer',
+    description: 'Audit log inspection, cryptographic certificate verification, and data protection enforcement.',
+    defaultScope: 'GLOBAL',
+    isSystem: true,
+    permissions: ['audit.view', 'settings.view', 'users.view', 'roles.view'],
+  },
+
+  INTEGRATION_ADMIN: {
+    code: 'INTEGRATION_ADMIN',
+    name: 'Integration & Connector Administrator',
+    description: 'Management of external API keys, webhook endpoints, and global connector failover circuit breakers.',
+    defaultScope: 'GLOBAL',
+    isSystem: true,
+    permissions: [
+      'dashboard.view', 'integrations.view', 'integrations.create', 'integrations.update',
+      'integrations.activate', 'integrations.disable', 'webhooks.view', 'webhooks.manage', 'sync.view', 'sync.run',
+    ],
+  },
+
+  AI_ADMIN: {
+    code: 'AI_ADMIN',
+    name: 'AI Knowledge & Agent Administrator',
+    description: 'Orchestration of AI models, temperature bounds, prompt templates, and knowledge retrieval permissions.',
+    defaultScope: 'GLOBAL',
+    isSystem: true,
+    permissions: ['dashboard.view', 'ai.view', 'ai.chat', 'ai.insights', 'ai.actions', 'ai.configure'],
+  },
+
+  PLATFORM_ANALYST: {
+    code: 'PLATFORM_ANALYST',
+    name: 'Platform Global Analyst',
+    description: 'Global anonymized telemetry, booking throughput, and cross-organization financial analytics.',
+    defaultScope: 'GLOBAL',
+    isSystem: true,
+    permissions: ['dashboard.view', 'analytics.view', 'analytics.export'],
+  },
+
+  ORGANIZATION_ADMIN: {
+    code: 'ORGANIZATION_ADMIN',
+    name: 'Organization Lead Administrator',
+    description: 'Full organizational authority over branches, staff, catalog, and finances.',
+    defaultScope: 'ORGANIZATION',
+    isSystem: true,
+    permissions: [
+      'dashboard.view', 'users.view', 'users.create', 'users.update', 'users.delete',
+      'customers.view', 'customers.create', 'customers.update',
+      'bookings.view', 'bookings.create', 'bookings.update', 'bookings.cancel',
+      'trips.view', 'trips.manage', 'inventory.view', 'payments.view', 'finance.view', 'analytics.view',
+    ],
+  },
+
+  REGIONAL_MANAGER: {
+    code: 'REGIONAL_MANAGER',
+    name: 'Regional Operations Director',
+    description: 'Multi-branch leadership across geographical zones (e.g., South India, Middle East).',
+    defaultScope: 'REGION',
+    isSystem: true,
+    permissions: [
+      'dashboard.view', 'customers.view', 'bookings.view', 'trips.view', 'trips.manage',
+      'inventory.view', 'payments.view', 'finance.view', 'analytics.view',
+    ],
+  },
+
+  SUPPORT_MANAGER: {
+    code: 'SUPPORT_MANAGER',
+    name: 'Customer Support Lead',
+    description: 'Oversight of ticket queues, traveler dispute escalations, and satisfaction SLA telemetry.',
+    defaultScope: 'ORGANIZATION',
+    isSystem: true,
+    permissions: [
+      'dashboard.view', 'customers.view', 'customers.update', 'bookings.view', 'bookings.update',
+      'trips.view', 'trips.update', 'ai.view', 'ai.chat',
+    ],
+  },
+
+  SALES_AGENT: {
+    code: 'SALES_AGENT',
+    name: 'Sales Executive',
+    description: 'Direct sales desk dealing with inbound customer quotes, lead nurturing, and payment links.',
+    defaultScope: 'ASSIGNED',
+    isSystem: true,
+    permissions: [
+      'dashboard.view', 'customers.view', 'customers.create', 'customers.update',
+      'leads.view', 'leads.create', 'leads.update', 'bookings.view', 'bookings.create',
+      'trips.view', 'itineraries.view', 'itineraries.create', 'offers.view', 'payments.create',
+    ],
+  },
+
+  OPERATIONS_AGENT: {
+    code: 'OPERATIONS_AGENT',
+    name: 'Operations Dispatch Executive',
+    description: 'Fulfillment execution for ticket issuance, hotel voucher generation, and transfer assignments.',
+    defaultScope: 'ASSIGNED',
+    isSystem: true,
+    permissions: [
+      'dashboard.view', 'bookings.view', 'bookings.update', 'trips.view', 'trips.update',
+      'itineraries.view', 'inventory.view', 'sync.view',
+    ],
+  },
+
+  FINANCE_EXECUTIVE: {
+    code: 'FINANCE_EXECUTIVE',
+    name: 'Accounts Executive',
+    description: 'Daily cash collections, bank statement reconciliation, GST invoice tagging, and credit notes.',
+    defaultScope: 'ORGANIZATION',
+    isSystem: true,
+    permissions: [
+      'dashboard.view', 'payments.view', 'payments.verify', 'finance.view', 'accounting.view',
+      'settlements.view', 'analytics.view',
+    ],
+  },
+
+  CONTENT_EDITOR: {
+    code: 'CONTENT_EDITOR',
+    name: 'Editorial Copywriter & Creator',
+    description: 'Authoring travel stories, SEO destination articles, and curated itineraries.',
+    defaultScope: 'ORGANIZATION',
+    isSystem: true,
+    permissions: [
+      'content.view', 'content.create', 'content.update', 'offers.view',
+      'vibe.view', 'vibe.create', 'vibe.edit', 'places.manage',
+    ],
+  },
+
+  MARKETING_EXECUTIVE: {
+    code: 'MARKETING_EXECUTIVE',
+    name: 'Growth & Social Campaigner',
+    description: 'Creation and distribution of holiday deals, WhatsApp broadcasts, and coupon campaigns.',
+    defaultScope: 'ORGANIZATION',
+    isSystem: true,
+    permissions: [
+      'dashboard.view', 'offers.view', 'offers.create', 'marketing.view', 'marketing.create',
+      'analytics.view',
+    ],
+  },
+
+  VENDOR_MANAGER: {
+    code: 'VENDOR_MANAGER',
+    name: 'Vendor General Manager',
+    description: 'Supplier leadership managing catalog products, rate sheets, contracts, and booking confirmations.',
+    defaultScope: 'OWN_VENDOR',
+    isSystem: true,
+    permissions: [
+      'dashboard.view', 'vendors.view', 'vendors.update', 'inventory.view', 'inventory.create',
+      'inventory.update', 'inventory.publish', 'bookings.view', 'settlements.view', 'analytics.view',
+    ],
+  },
+
+  VENDOR_FINANCE: {
+    code: 'VENDOR_FINANCE',
+    name: 'Vendor Finance Officer',
+    description: 'Inspection of supplier payable statements, commission deductions, bank reconciliations, and payout invoices.',
+    defaultScope: 'OWN_VENDOR',
+    isSystem: true,
+    permissions: [
+      'dashboard.view', 'settlements.view', 'payments.view', 'finance.view', 'analytics.view',
+    ],
+  },
+
+  VENDOR_CONTENT: {
+    code: 'VENDOR_CONTENT',
+    name: 'Vendor Media & Catalog Specialist',
+    description: 'Upload of property photos, room descriptions, amenity badges, and experience departure schedules.',
+    defaultScope: 'OWN_VENDOR',
+    isSystem: true,
+    permissions: [
+      'dashboard.view', 'inventory.view', 'inventory.update', 'content.view', 'content.create',
+    ],
+  },
+
+  PARTNER_ADMIN: {
+    code: 'PARTNER_ADMIN',
+    name: 'B2B Partner Agency Principal',
+    description: 'Agency principal with authority to configure white-label branding, credit limits, and sub-agent seats.',
+    defaultScope: 'ORGANIZATION',
+    isSystem: true,
+    permissions: [
+      'dashboard.view', 'customers.view', 'customers.create', 'bookings.view', 'bookings.create',
+      'bookings.update', 'trips.view', 'inventory.view', 'offers.view', 'payments.create', 'analytics.view',
+    ],
+  },
+
+  PARTNER_AGENT: {
+    code: 'PARTNER_AGENT',
+    name: 'B2B Partner Sub-Agent',
+    description: 'Partner retail desk consultant creating custom client proposals with partner agency markups.',
+    defaultScope: 'ASSIGNED',
+    isSystem: true,
+    permissions: [
+      'dashboard.view', 'customers.view', 'customers.create', 'bookings.view', 'bookings.create',
+      'trips.view', 'offers.view', 'payments.create',
+    ],
+  },
+
+  DMC_USER: {
+    code: 'DMC_USER',
+    name: 'Destination Management Company Specialist',
+    description: 'In-destination ground handler coordinating ground transport, local guides, and airport transfers.',
+    defaultScope: 'OWN_VENDOR',
+    isSystem: true,
+    permissions: [
+      'dashboard.view', 'inventory.view', 'inventory.update', 'bookings.view',
+    ],
+  },
+
+  HOTEL_USER: {
+    code: 'HOTEL_USER',
+    name: 'Hotel Reservations Agent',
+    description: 'Property front desk receiving confirmed room vouchers, guest arrival notes, and meal plan instructions.',
+    defaultScope: 'OWN_VENDOR',
+    isSystem: true,
+    permissions: [
+      'dashboard.view', 'inventory.view', 'inventory.update', 'bookings.view',
+    ],
+  },
+
+  TRANSPORT_OPERATOR: {
+    code: 'TRANSPORT_OPERATOR',
+    name: 'Transport & Fleet Controller',
+    description: 'Vehicle fleet management, driver manifest assignment, and arrival pickup dispatch.',
+    defaultScope: 'OWN_VENDOR',
+    isSystem: true,
+    permissions: [
+      'dashboard.view', 'inventory.view', 'inventory.update', 'bookings.view',
+    ],
+  },
+
+  EXPERIENCE_PROVIDER: {
+    code: 'EXPERIENCE_PROVIDER',
+    name: 'Tours & Experiences Host',
+    description: 'Host for guided trekking, diving, safaris, and cooking masterclasses managing participant slots.',
+    defaultScope: 'OWN_VENDOR',
+    isSystem: true,
+    permissions: [
+      'dashboard.view', 'inventory.view', 'inventory.update', 'bookings.view',
     ],
   },
 };
