@@ -1,7 +1,8 @@
 'use client';
 
 import React, { useState } from 'react';
-import { Compass, Layers, Plane, Building, Package, Sparkles, Car, MapPin, Calendar, Users, Search } from 'lucide-react';
+import Link from 'next/link';
+import { Compass, Layers, Plane, Building, Package, Sparkles, Car, MapPin, Calendar, Users, Search, Mic } from 'lucide-react';
 
 export const HeroSection: React.FC = () => {
   const [activeTab, setActiveTab] = useState<'all' | 'flights' | 'hotels' | 'packages' | 'experiences' | 'transport'>('all');
@@ -129,6 +130,13 @@ export const HeroSection: React.FC = () => {
                 {city}
               </button>
             ))}
+            <Link
+              href="/voice"
+              className="ml-auto inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-sky-50 hover:bg-sky-100 text-sky-700 font-bold border border-sky-200 transition"
+            >
+              <Mic className="w-3.5 h-3.5 text-sky-600 animate-pulse" />
+              <span>Voice OS Search</span>
+            </Link>
           </div>
 
         </div>

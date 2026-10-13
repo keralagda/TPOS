@@ -18,7 +18,21 @@ const isPublicRoute = createRouteMatcher([
   '/trips(.*)',
   '/campaigns(.*)',
   '/diaries(.*)',
+  '/voice(.*)',
+  '/trip-planner(.*)',
+  '/checkout(.*)',
   '/api/public(.*)',
+  '/api/v1/voice(.*)',
+  '/api/v1/search(.*)',
+  '/api/v1/places(.*)',
+  '/api/v1/journeys(.*)',
+  '/api/v1/destinations(.*)',
+  '/api/v1/packages(.*)',
+  '/api/v1/ideas(.*)',
+  '/api/v1/media(.*)',
+  '/api/v1/social8/circles(.*)',
+  '/api/v1/voyage8(.*)',
+  '/api/v1/health(.*)',
 ]);
 
 export default clerkMiddleware(async (auth, request) => {

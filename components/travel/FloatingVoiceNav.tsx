@@ -106,10 +106,9 @@ export function FloatingVoiceNav({ userRole = 'CUSTOMER' }: FloatingVoiceNavProp
             router.push(data.intent.targetRoute);
           }, 900);
         } else {
-          setStatusMessage(data.message || 'Destination not found. Try one of the quick shortcuts below.');
+          handleFallbackRouting(text);
         }
       } else {
-        // Fallback local keyword routing
         handleFallbackRouting(text);
       }
     } catch (err: any) {
@@ -118,14 +117,14 @@ export function FloatingVoiceNav({ userRole = 'CUSTOMER' }: FloatingVoiceNavProp
   };
 
   const handleFallbackRouting = (text: string) => {
-    const lower = text.toLowerCase();
+    const lower = text.toLowerCase().trim();
     let target = '/destinations';
     let label = 'Destinations';
 
-    if (lower.includes('circle') || lower.includes('group') || lower.includes('social')) {
+    if (lower.includes('circle') || lower.includes('group') || lower.includes('social') || lower.includes('കമ്മ്യൂണിറ്റി')) {
       target = '/circles';
       label = 'Travel Circles';
-    } else if (lower.includes('package') || lower.includes('deal') || lower.includes('offer')) {
+    } else if (lower.includes('package') || lower.includes('deal') || lower.includes('offer') || lower.includes('tour')) {
       target = '/packages';
       label = 'Packages';
     } else if (lower.includes('idea') || lower.includes('innovation')) {
@@ -134,12 +133,24 @@ export function FloatingVoiceNav({ userRole = 'CUSTOMER' }: FloatingVoiceNavProp
     } else if (lower.includes('help') || lower.includes('doc') || lower.includes('support')) {
       target = '/help';
       label = 'Help & Docs';
+    } else if (lower.includes('plan') || lower.includes('planner') || lower.includes('itinerary')) {
+      target = '/trip-planner';
+      label = 'Trip Planner';
     } else if (lower.includes('trip') || lower.includes('booking')) {
       target = '/trips';
       label = 'My Trips';
     } else if (lower.includes('voice') || lower.includes('console')) {
       target = '/voice';
       label = 'Voice Console';
+    } else if (lower.includes('login') || lower.includes('sign in')) {
+      target = '/sign-in';
+      label = 'Sign In';
+    } else if (lower.includes('register') || lower.includes('sign up')) {
+      target = '/sign-up';
+      label = 'Sign Up';
+    } else if (lower.length > 2) {
+      target = `/destinations?q=${encodeURIComponent(lower)}`;
+      label = `Searching "${text}"`;
     }
 
     setIsRouting(true);

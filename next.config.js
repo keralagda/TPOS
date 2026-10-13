@@ -8,7 +8,7 @@ const nextConfig = {
   env: {
     NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY:
       process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY ||
-      'pk_live_Y2xlcmsudHBvc3gudmVyY2VsLmFwcCQ',
+      'pk_test_ZGVjZW50LWZhd24tNjg5MC5jbGVyay5hY2NvdW50cy5kZXYk',
     NEXT_PUBLIC_CLERK_SIGN_IN_URL:
       process.env.NEXT_PUBLIC_CLERK_SIGN_IN_URL || '/sign-in',
     NEXT_PUBLIC_CLERK_SIGN_UP_URL:
