@@ -12,6 +12,11 @@ const nextConfig = {
       !process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY.includes('dmVyY2VsLmFwcCQ')
         ? process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY
         : 'pk_test_ZGVjZW50LWZhd24tNjg5MC5jbGVyay5hY2NvdW50cy5kZXYk',
+    CLERK_SECRET_KEY:
+      process.env.CLERK_SECRET_KEY &&
+      !process.env.CLERK_SECRET_KEY.startsWith('sk_live_')
+        ? process.env.CLERK_SECRET_KEY
+        : 'sk_test_yjQ6FIi9lDmWB746pv2vLThs8z1nieIOGeWRrt8JSg',
     NEXT_PUBLIC_CLERK_SIGN_IN_URL:
       process.env.NEXT_PUBLIC_CLERK_SIGN_IN_URL || '/sign-in',
     NEXT_PUBLIC_CLERK_SIGN_UP_URL:
