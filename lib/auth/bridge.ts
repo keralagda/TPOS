@@ -26,8 +26,8 @@ import { NextRequest } from 'next/server';
 import { headers } from 'next/headers';
 import prisma from '../prisma';
 import { auth, toAuthUser, getBetterAuthSession } from './better-auth';
-import { getClerkAuthUser } from './clerk-auth';
-import { auth as clerkAuthServer } from '@clerk/nextjs/server';
+import { getClerkAuthUser, normalizeClerkRole, isSuperAdminUserId, isSuperAdminEmail } from './clerk-auth';
+import { auth as clerkAuthServer, clerkClient } from '@clerk/nextjs/server';
 import { AuthorizationEngine, AuthUser } from './rbac-engine';
 import { ResourceScopeTarget, DataScope } from './scopes';
 import { TestFixturesManager } from './test-fixtures';
@@ -83,15 +83,36 @@ export class TravelPlanetAuthBridge {
       } else {
         const clerkAuth = await clerkAuthServer();
         if (clerkAuth && clerkAuth.userId) {
+          let email = `${clerkAuth.userId}@clerk.user`;
+          let fullName = 'Clerk User';
+
+          if (isSuperAdminUserId(clerkAuth.userId)) {
+            email = 'amal50058@gmail.com';
+            fullName = 'Amal Babu (Super Admin)';
+          } else {
+            try {
+              const client = await clerkClient();
+              const user = await client.users.getUser(clerkAuth.userId);
+              if (user) {
+                email = user.emailAddresses?.[0]?.emailAddress || email;
+                fullName = `${user.firstName || ''} ${user.lastName || ''}`.trim() || fullName;
+              }
+            } catch {
+              // fallback
+            }
+          }
+
+          const roles = normalizeClerkRole(clerkAuth.orgRole, email, clerkAuth.userId);
+
           return {
             id: clerkAuth.userId,
-            email: `${clerkAuth.userId}@clerk.user`,
-            fullName: 'Clerk User',
-            organizationId: clerkAuth.orgId || null,
-            workspaceId: null,
+            email,
+            fullName: isSuperAdminEmail(email) ? 'Amal Babu (Super Admin)' : fullName,
+            organizationId: clerkAuth.orgId || 'org_tp_hq',
+            workspaceId: 'ws_hq_main',
             teamIds: [],
             vendorId: null,
-            roles: clerkAuth.orgRole ? [clerkAuth.orgRole.toUpperCase()] : ['CUSTOMER'],
+            roles,
           };
         }
       }

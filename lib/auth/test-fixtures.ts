@@ -97,7 +97,31 @@ export class TestFixturesManager {
     const pwHash = this.hashPassword(seedPw);
 
     return [
-      // 1. Platform Super Admin (Amal Babu)
+      // 1. Platform Super Admin (Amal Babu - Clerk Account)
+      {
+        id: 'usr_amal_super_admin',
+        email: 'amal50058@gmail.com',
+        fullName: 'Amal Babu (Super Admin)',
+        organizationId: 'org_tp_hq',
+        workspaceId: 'ws_hq_main',
+        roles: ['PLATFORM_SUPER_ADMIN'],
+        passwordHash: pwHash,
+        seedPasswordCleartext: seedPw,
+      },
+
+      // 1b. Platform Super Admin (Amal - Short Email Format)
+      {
+        id: 'usr_amal_super_admin_short',
+        email: 'amal50058@gmail',
+        fullName: 'Amal Babu (Super Admin)',
+        organizationId: 'org_tp_hq',
+        workspaceId: 'ws_hq_main',
+        roles: ['PLATFORM_SUPER_ADMIN'],
+        passwordHash: pwHash,
+        seedPasswordCleartext: seedPw,
+      },
+
+      // 1c. Platform Super Admin (Amal Babu Legacy Local)
       {
         id: 'usr_super_admin',
         email: 'superadmin@test.travelplanet.local',

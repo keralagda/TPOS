@@ -10,7 +10,7 @@ import {
 import { useNavigation } from '@/components/navigation/NavigationContext';
 import { UniversalCreateButton } from '@/components/navigation/UniversalCreateButton';
 import { getAllBranches } from '@/lib/navigation/branches';
-import { UserButton } from '@clerk/nextjs';
+import { UserButton, useUser } from '@clerk/nextjs';
 
 interface InternalHeaderProps {
   headerTitle?: string;
@@ -43,6 +43,12 @@ export function InternalHeader({
   const profileRef = useRef<HTMLDivElement>(null);
 
   const allBranches = getAllBranches();
+  const { user: clerkUser } = useUser();
+  const displayName = clerkUser?.fullName || (clerkUser?.primaryEmailAddress?.emailAddress ? clerkUser.primaryEmailAddress.emailAddress.split('@')[0] : 'Amal Babu');
+  const displayEmail = clerkUser?.primaryEmailAddress?.emailAddress || 'amal50058@gmail.com';
+  const initials = clerkUser?.firstName
+    ? `${clerkUser.firstName[0]}${clerkUser.lastName?.[0] || ''}`.toUpperCase()
+    : 'AB';
 
   // Close dropdowns on outside click
   useEffect(() => {
@@ -304,9 +310,9 @@ export function InternalHeader({
             className="flex items-center gap-2 pl-1 pr-2 py-1 rounded-xl bg-slate-900/80 hover:bg-slate-800 border border-slate-800 text-xs text-slate-300 transition"
           >
             <div className="w-6 h-6 rounded-lg bg-gradient-to-tr from-sky-500 to-indigo-600 flex items-center justify-center font-black text-white text-[10px] shadow-sm">
-              AB
+              {initials}
             </div>
-            <span className="hidden xl:inline font-bold text-slate-200">Amal Babu</span>
+            <span className="hidden xl:inline font-bold text-slate-200">{displayName}</span>
             <ChevronDown className={`w-3 h-3 text-slate-400 transition duration-150 ${profileOpen ? 'rotate-180' : ''}`} />
           </button>
 
@@ -314,10 +320,11 @@ export function InternalHeader({
             <div className="absolute right-0 mt-2 w-64 rounded-2xl bg-slate-900 border border-slate-700/90 shadow-2xl z-50 p-2 animate-in fade-in zoom-in-95 duration-150">
               <div className="p-2.5 border-b border-slate-800 flex items-center gap-2.5">
                 <div className="w-8 h-8 rounded-xl bg-gradient-to-tr from-sky-500 to-indigo-600 flex items-center justify-center font-black text-white text-xs">
-                  AB
+                  {initials}
                 </div>
                 <div>
-                  <div className="text-xs font-bold text-white">Amal Babu</div>
+                  <div className="text-xs font-bold text-white">{displayName}</div>
+                  <div className="text-[10px] font-mono text-slate-400 truncate max-w-[150px]">{displayEmail}</div>
                   <div className="text-[10px] font-mono text-sky-400 font-semibold">{role}</div>
                 </div>
               </div>

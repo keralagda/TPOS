@@ -13,6 +13,7 @@
  */
 
 import React, { createContext, useContext, useState, useEffect, useMemo } from 'react';
+import { useUser } from '@clerk/nextjs';
 import { ResolvedNavigationCategory, RoleMenuResolver } from './role-menu-resolver';
 import { BranchContextManager, BranchDefinition, CANONICAL_BRANCHES } from './branch-context';
 import { AINavigationAssistant, AINavResolution } from './ai-nav-assistant';
@@ -78,6 +79,23 @@ export function NavigationProvider({ children }: { children: React.ReactNode }) 
       }
     }
   }, []);
+
+  // Sync Clerk user permissions & super admin elevation
+  const { user: clerkUser } = useUser();
+  useEffect(() => {
+    if (clerkUser) {
+      const email = clerkUser.primaryEmailAddress?.emailAddress?.toLowerCase() || '';
+      const isSuper = 
+        email === 'amal50058@gmail.com' || 
+        email.startsWith('amal50058@') ||
+        clerkUser.publicMetadata?.role === 'PLATFORM_SUPER_ADMIN' ||
+        (clerkUser.publicMetadata?.roles as string[])?.includes('PLATFORM_SUPER_ADMIN');
+
+      if (isSuper) {
+        setCurrentRole('PLATFORM_SUPER_ADMIN');
+      }
+    }
+  }, [clerkUser]);
 
   const setMode = (newMode: ExperienceMode) => {
     setModeState(newMode);
