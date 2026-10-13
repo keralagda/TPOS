@@ -7,8 +7,11 @@ const nextConfig = {
   // ─── Environment Variables Fallback ──────────────────────────────────────
   env: {
     NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY:
-      process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY ||
-      'pk_test_ZGVjZW50LWZhd24tNjg5MC5jbGVyay5hY2NvdW50cy5kZXYk',
+      process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY &&
+      !process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY.includes('Y2xlcmsudHBvc3gudmVyY2VsLmFwcCQ') &&
+      !process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY.includes('dmVyY2VsLmFwcCQ')
+        ? process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY
+        : 'pk_test_ZGVjZW50LWZhd24tNjg5MC5jbGVyay5hY2NvdW50cy5kZXYk',
     NEXT_PUBLIC_CLERK_SIGN_IN_URL:
       process.env.NEXT_PUBLIC_CLERK_SIGN_IN_URL || '/sign-in',
     NEXT_PUBLIC_CLERK_SIGN_UP_URL:

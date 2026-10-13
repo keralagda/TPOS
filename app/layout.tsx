@@ -7,9 +7,16 @@ export const metadata: Metadata = {
   description: 'B2C Travel Marketplace & Directory OS powered by H8 and Voyage8 travel intelligence.',
 };
 
+const rawClerkKey = process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY;
+const isBrokenVercelLiveKey =
+  rawClerkKey &&
+  (rawClerkKey.includes('Y2xlcmsudHBvc3gudmVyY2VsLmFwcCQ') ||
+    rawClerkKey.includes('dmVyY2VsLmFwcCQ'));
+
 const publishableKey =
-  process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY ||
-  'pk_test_ZGVjZW50LWZhd24tNjg5MC5jbGVyay5hY2NvdW50cy5kZXYk';
+  rawClerkKey && !isBrokenVercelLiveKey
+    ? rawClerkKey
+    : 'pk_test_ZGVjZW50LWZhd24tNjg5MC5jbGVyay5hY2NvdW50cy5kZXYk';
 
 export default function RootLayout({
   children,
