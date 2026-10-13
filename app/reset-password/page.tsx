@@ -4,12 +4,20 @@
  * Travel Planet (Voyage8) — Secure Password Reset
  */
 
-import React, { useState } from 'react';
+import React, { Suspense, useState } from 'react';
 import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
 import { Lock, ArrowRight, Plane, CheckCircle, AlertCircle, Shield } from 'lucide-react';
 
 export default function ResetPasswordPage() {
+  return (
+    <Suspense fallback={<div className="min-h-screen bg-slate-950 flex items-center justify-center text-slate-400">Loading...</div>}>
+      <ResetPasswordContent />
+    </Suspense>
+  );
+}
+
+function ResetPasswordContent() {
   const searchParams = useSearchParams();
   const token = searchParams.get('token');
 
@@ -179,7 +187,7 @@ export default function ResetPasswordPage() {
 
         <div className="mt-6 flex items-center justify-center gap-2 text-xs text-slate-500">
           <Shield className="w-3.5 h-3.5 text-slate-500" />
-          <span>Encrypted with Better Auth session security</span>
+          <span>Encrypted with secure session standards</span>
         </div>
       </div>
     </div>
