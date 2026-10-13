@@ -4,6 +4,21 @@ const nextConfig = {
   // Keep default (server) for Vercel — no 'export' mode with dynamic routes
   // output: 'standalone',  // Uncomment if self-hosting with Docker
 
+  // ─── Environment Variables Fallback ──────────────────────────────────────
+  env: {
+    NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY:
+      process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY ||
+      'pk_live_Y2xlcmsudHBvc3gudmVyY2VsLmFwcCQ',
+    NEXT_PUBLIC_CLERK_SIGN_IN_URL:
+      process.env.NEXT_PUBLIC_CLERK_SIGN_IN_URL || '/sign-in',
+    NEXT_PUBLIC_CLERK_SIGN_UP_URL:
+      process.env.NEXT_PUBLIC_CLERK_SIGN_UP_URL || '/sign-up',
+    NEXT_PUBLIC_CLERK_SIGN_IN_FALLBACK_REDIRECT_URL:
+      process.env.NEXT_PUBLIC_CLERK_SIGN_IN_FALLBACK_REDIRECT_URL || '/',
+    NEXT_PUBLIC_CLERK_SIGN_UP_FALLBACK_REDIRECT_URL:
+      process.env.NEXT_PUBLIC_CLERK_SIGN_UP_FALLBACK_REDIRECT_URL || '/',
+  },
+
   // ─── Experimental ────────────────────────────────────────────────────────
   experimental: {
     // Server Actions are stable in Next.js 14 — no flag needed

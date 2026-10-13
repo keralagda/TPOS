@@ -7,6 +7,10 @@ export const metadata: Metadata = {
   description: 'B2C Travel Marketplace & Directory OS powered by H8 and Voyage8 travel intelligence.',
 };
 
+const publishableKey =
+  process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY ||
+  'pk_live_Y2xlcmsudHBvc3gudmVyY2VsLmFwcCQ';
+
 export default function RootLayout({
   children,
 }: {
@@ -20,7 +24,7 @@ export default function RootLayout({
         <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
       </head>
       <body className="bg-slate-50 text-slate-900 antialiased font-sans">
-        <ClerkProvider>
+        <ClerkProvider publishableKey={publishableKey}>
           {children}
         </ClerkProvider>
       </body>
